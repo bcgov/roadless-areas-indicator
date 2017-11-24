@@ -41,7 +41,7 @@ rdB2<-r.focal
 #rdB2 <- overlay(r.focal, rd, fun=function(x, y) ifelse(y > 0, 1, ifelse(x > 0, 2, 0)))
 
 #Resample to 100m using nearest neighbourhood approach
-rdB2100ngb<-resample(rdB2,ttt,method='ngb') #Better method
+rdB2100ngb<-resample(rdB2,ProvRast,method='ngb') #Better method
 writeRaster(rdB2100ngb, file=paste(dataOutDir,"rdB2100ngbM",".tif",sep=''), format="GTiff",overwrite=TRUE)
 rdB2100bil<-resample(rdB2,ProvRast,method='bilinear')
 writeRaster(rdB2100bil, file=paste(dataOutDir,"rdB2100bilM",".tif",sep=''), format="GTiff",overwrite=TRUE)
