@@ -13,30 +13,42 @@
 require(raster)
 require(SpaDES)
 
-tileOutDir<-paste(dataOutDir,"Ptiles/",sep='')
-
 #Common parameters
-nTiles<-100
+nTiles<-10
 Tilebuf<-100
 
 #set RoadDensP as a binary road/no-road
-#Rd<-RoadDensPM>0#for testing
-Rd<-RoadDensP100>0
+Rd<-RoadDensM50>0
 
+#Set the timer
 ptm <- proc.time()
-#To remove edge effects a 100 (5000/5km) cell buffer is used
+
+#R was crashing with large data sets, use tiling to resolve and to increase speed
+#tiles are written to the tileOutDir and held in memory.
+#To remove edge effects a 100 (5000/5km) cell buffer is used since 
+#all areas greater than 5K are considered intact.
+tileOutDir<-paste(dataOutDir,"Ptiles/",sep='')
 RdTiles=splitRaster(Rd, nx=sqrt(nTiles), ny=sqrt(nTiles), buffer=c(Tilebuf,Tilebuf), path=tileOutDir)
 
-#Use mapply to apply gridDistance over RdTiles
+#Use mapply to apply gridDistance over RdTiles then merge them back together
 dT<-mapply(gridDistance, RdTiles, origin=1)
 distRdsR<-mergeRaster(dT)
 
+#write out raster for further inspection
+writeRaster(distRdsR, filename=paste(tileOutDir,"PdistRdsR_",Tilebuf,".tif",sep=''), format="GTiff", overwrite=TRUE)
+
+proc.time() - ptm 
+
+####TEST Loop - Loop was used but was slower than using mapply
 #for (i in 1:nTiles) {
 #  distRdsR<-gridDistance(RdTiles[[i]], origin=1)
 #  writeRaster(distRdsR, filename=paste(tileOutDir,"PdistRdsR_",i,"_",buf,".tif",sep=''), format="GTiff", overwrite=TRUE)
 #  gc()
 #  }
-proc.time() - ptm 
+####END of TEST
 
-#write out raster for further inspection
-writeRaster(distRdsR, filename=paste(tileOutDir,"PdistRdsR_",buf,".tif",sep=''), format="GTiff", overwrite=TRUE)
+####TEST small data set - do gridDistance on test data
+Rd<-RoadDensM50>0
+distRdsR<-gridDistance(Rd, origin=1)
+
+writeRaster(distRdsR, filename=paste(tileOutDir,"MdistRdsR_",Tilebuf,".tif",sep=''), format="GTiff", overwrite=TRUE)

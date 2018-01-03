@@ -10,15 +10,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and limitations under the License.
 
+require(raster)
+
 #Crop to Province
 ProvRast<-raster(nrows=15744, ncols=17216, xmn=159587.5, xmx=1881187.5, ymn=173787.5,ymx=1748187.5,crs="+proj=aea +lat_1=50 +lat_2=58.5 +lat_0=45 +lon_0=-126 +x_0=1000000 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0",res=c(100,100),vals=0)
-
-#Smaller raster for testing
-#MoRast<-raster(nrows=5899, ncols=4619, xmn=634387.5, xmx=1096287.5, ymn=777687.5,ymx=1367587.5,crs="+proj=aea +lat_1=50 +lat_2=58.5 +lat_0=45 +lon_0=-126 +x_0=1000000 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0",res=c(100,100),vals=0)
-#Still to large for testing shrink to .25M cells
-#e<-extent(MoRast)
-#ClipRast<-c(e[1]+300000,e[2]-100000,e[3]+300000,e[4]-250000)
+PClipRast<-ProvRast
 
 #crop RoadDens to ProvRast and resample to 50m
-RoadDensP<-disaggregate(crop(RoadDens,ClipRast), fact=2) 
+RoadDensP100<-crop(RoadDens,PClipRast)
+RoadDensP50<-disaggregate(crop(RoadDens,PClipRast), fact=2) 
+
+####TEST -- Smaller raster for testing
+MoRast<-raster(nrows=5899, ncols=4619, xmn=634387.5, xmx=1096287.5, ymn=777687.5,ymx=1367587.5,crs="+proj=aea +lat_1=50 +lat_2=58.5 +lat_0=45 +lon_0=-126 +x_0=1000000 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0",res=c(100,100),vals=0)
+#Still to large for testing shrink to .25M cells
+e<-extent(MoRast)
+MClipRast<-c(e[1]+300000,e[2]-100000,e[3]+300000,e[4]-250000)
+MClipRast<-MoRast
+RoadDensM100<-crop(RoadDens,MClipRast)
+RoadDensM50<-disaggregate(crop(RoadDens,MClipRast), fact=2) 
+####END of TEST
+
+#clean up the workspace
 gc()
