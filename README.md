@@ -2,7 +2,7 @@
 
 # Intact Lands in B.C. Indicator
 
-This repository contains R code that calculates and summarizes the amount of inatct land in B.C. It supports a 'Land' indicator under development for [Environmental Reporting BC](http://www2.gov.bc.ca/gov/content?id=FF80E0B985F245CEA62808414D78C41B).
+This repository contains R code that calculates and summarizes the amount of intact land in B.C. It supports a 'Land' indicator under development for [Environmental Reporting BC](http://www2.gov.bc.ca/gov/content?id=FF80E0B985F245CEA62808414D78C41B).
 
 ## Getting Help or Reporting an Issue
 
@@ -12,7 +12,7 @@ To report bugs/issues/feature requests, please file an [issue](https://github.co
 
 If you would like to contribute, please see our [CONTRIBUTING](CONTRIBUTING.md) guidelines.
 
-Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). 
+Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md).
 By participating in this project you agree to abide by its terms.
 
 ## Licence
@@ -21,7 +21,7 @@ By participating in this project you agree to abide by its terms.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at 
+    You may obtain a copy of the License at
 
        http://www.apache.org/licenses/LICENSE-2.0
 
