@@ -10,6 +10,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and limitations under the License.
 
+source("header.R")
+
 library(dplyr)
 library(ggplot2)
 library(devtools)
@@ -22,16 +24,12 @@ library(gridExtra)
 library(grid)
 library(gridGraphics)
 library(rasterVis)
-#install.packages('bcmaps.rdata', repos='https://bcgov.github.io/drat/')
-#Link to Provincial maps from bcgov/bcmaps - to do area summaries
-#library(devtools)
-#install_github("bcgov/bcmaps", build_vignettes = TRUE)
-#install.packages('bcmaps.rdata', repos='https://bcgov.github.io/drat/')
-library(bcmaps)
 library(igraph)
 
 #Set/Read in provincial map
-#roadsSC <- raster(paste(dataOutDir,"/roadsSC.tif",sep=''), format="GTiff")
+roadsSC <- raster(file.path(dataOutDir,"roadsSC.tif"), format="GTiff")
+#Get ha of each grid cell based on cell size
+areaIN<-res(roadsSC)[1]*res(roadsSC)[2]/10000 #e.g. for 200m grid 4 ha
 
 #define some categorical variables and plotting labels based on distance breaks
 #DistanceCls<-c(0,500,1000,2000,5000,1000000)
@@ -192,15 +190,16 @@ for (j in 1:length(rbyp_par_summary)) {
   plotMap<-RdClsMap(PRdClsdf,Lbl,MapCol, title=StrataName)
   
 #write Strata to a pdf: table, map, distance and cummulative graphs
-  pdf(file=paste(figsOutDir,StrataName,"_Graphs.pdf",sep=""),)
+  pdf(file=file.path(figsOutDir,paste0(StrataName,"_Graphs.pdf")))
     lay <- rbind(c(1,1,2,2), c(1,1,2,2),c(3,3,3,3))
+    #Alternatives to grid.arrange patchwork and cowplot
     grid.arrange(plotDist, plotCumm, tbl, layout_matrix=lay,top=names(rbyp_par_summary[j]))
     #+theme(plot.margin=unit(c(1,1,1,1), "cm"))
     dev.off()
    
     x_res=ncol(RdClsdf)
     y_res=nrow(RdClsdf)
-    png(file=paste(figsOutDir,StrataName,".png",sep=""),width=x_res,height=y_res)
+    png(file=file.path(figsOutDir,paste0(StrataName,".png")),width=x_res,height=y_res)
     print(plotMap)
     dev.off()
 }

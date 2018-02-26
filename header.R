@@ -7,7 +7,7 @@ library(bcmaps)
 OutDir <- 'out'
 dataOutDir <- file.path(OutDir,'data')
 tileOutDir <- file.path(dataOutDir,'tile')
-figsOutDir <- file.path(OutDir,'figures/')
+figsOutDir <- file.path(OutDir,'figures')
 DataDir <- 'data'
 dir.create(file.path(OutDir), showWarnings = FALSE)
 dir.create(file.path(dataOutDir), showWarnings = FALSE)

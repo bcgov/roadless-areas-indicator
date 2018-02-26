@@ -16,10 +16,10 @@ require(SpaDES)
 nTiles<-100
 Tilebuf<-100
 
-tileOutDir<-paste(dataOutDir,"/Ptiles",sep='')
+tileOutDir<-file.path(dataOutDir,"Ptiles")
 
 #set RoadDensP as a binary road/no-road
-#RoadDensP100<-raster(paste(dataOutDir,"/RoadDensP100.tif",sep=''))
+#RoadDensP100<-raster(file.path(dataOutDir,"RoadDensP100.tif"))
 Rd<-RoadDensP100>0
 
 ptm <- proc.time()
@@ -37,4 +37,4 @@ proc.time() - ptm
 gc()
 
 #write out raster for further inspection
-writeRaster(distRdsR, filename=paste(tileOutDir,"/distRdsR.tif",sep=''), format="GTiff", overwrite=TRUE)
+writeRaster(distRdsR, filename=file.path(tileOutDir,"distRdsR.tif"), format="GTiff", overwrite=TRUE)

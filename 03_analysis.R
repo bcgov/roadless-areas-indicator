@@ -14,7 +14,7 @@ source("header.R")
 
 #Read in road surface - add 50m since 100m road already has a 50m buffer
 #
-distRdsR<-raster(paste(tileOutDir,"/distRdsR.tif",sep=''), format="GTiff")+50
+distRdsR<-raster(file.path(tileOutDir,"distRdsR.tif"), format="GTiff")+50
 roadsS<-distRdsR
 
 #define the distance class breaks 
@@ -78,7 +78,7 @@ for (i in clVal) {
   #r.NA[clp %in% rmID] <- NA
   #set the small areas to a distance class unique identifier
   r.NA[clp %in% rmID] <- (i + nclVal) # 1  2  3  4  5  6 14 24 36 50?
-  #writeRaster(r.NA, filename=paste(dataOutDir,"r.NA",i,".tif",sep=''), format="GTiff", overwrite=TRUE)
+  #writeRaster(r.NA, filename=file.path(dataOutDir,paste0("r.NA",i,".tif")), format="GTiff", overwrite=TRUE)
   gc()
   } 
 
@@ -91,7 +91,7 @@ roadsSC <- crop(r2, r1)
 # assign all clumps to a single group
 roadsSC[roadsSC > nclVal] <- (nclVal+1)
 
-writeRaster(roadsSC, filename=paste(dataOutDir,"/roadsSC.tif",sep=''), format="GTiff", overwrite=TRUE)
+writeRaster(roadsSC, filename=file.path(dataOutDir,"roadsSC.tif"), format="GTiff", overwrite=TRUE)
 
 proc.time() - ptm 
 
