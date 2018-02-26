@@ -23,14 +23,15 @@ RoadDens<-raster(paste(DataDir,"/RoadDensR.tif",sep=""))
 
 #Rasterize the Province for subsequent masking
 ProvRast<-raster(nrows=15744, ncols=17216, xmn=159587.5, xmx=1881187.5, ymn=173787.5,ymx=1748187.5,crs="+proj=aea +lat_1=50 +lat_2=58.5 +lat_0=45 +lon_0=-126 +x_0=1000000 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0",res=c(100,100),vals=0)
-BCr<-rasterize((bcmaps.rdata::bc_bound_hres),ProvRast,mask=TRUE)
+#BCr<-rasterize((bcmaps.rdata::bc_bound_hres),ProvRast,mask=TRUE)
+BCr<-raster(paste(dataOutDir,"/BCr.tif",sep=''))
 
 #crop RoadDens to ProvRast, will mask later
 RoadDensP100<-crop(RoadDens,ProvRast)
 
 #write out processed rasters
-#writeRaster(BCr, filename=paste(dataOutDir,"BCr.tif",sep=''), format="GTiff", overwrite=TRUE)
-#writeRaster(RoadDensP100, filename=paste(dataOutDir,"RoadDensP100.tif",sep=''), format="GTiff", overwrite=TRUE)
+#writeRaster(BCr, filename=paste(dataOutDir,"/BCr.tif",sep=''), format="GTiff", overwrite=TRUE)
+#writeRaster(RoadDensP100, filename=paste(dataOutDir,"/RoadDensP100.tif",sep=''), format="GTiff", overwrite=TRUE)
 
 ### Test Resample to 50m
 #RoadDensP50<-disaggregate(crop(RoadDens,ProvRast), fact=2) 

@@ -17,7 +17,7 @@ require(SpaDES)
 nTiles<-100
 Tilebuf<-100
 
-tileOutDir<-paste(dataOutDir,"Ptiles/",sep='')
+tileOutDir<-paste(dataOutDir,"/Ptiles",sep='')
 
 #set RoadDensP as a binary road/no-road
 #RoadDensP100<-raster(paste(dataOutDir,"/RoadDensP100.tif",sep=''))
@@ -25,7 +25,7 @@ Rd<-RoadDensP100>0
 
 ptm <- proc.time()
 #To remove edge effects a 100 (5000/5km) cell buffer is used
-RdTiles=splitRaster(Rd, nx=sqrt(nTiles), ny=sqrt(nTiles), buffer=c(Tilebuf,Tilebuf), path=tileOutDir)
+RdTiles=splitRaster(Rd, nx=sqrt(nTiles), ny=sqrt(nTiles), buffer=c(Tilebuf,Tilebuf), path=paste(tileOutDir,'/',sep=''))
 
 #Use mapply to apply gridDistance over RdTiles
 dT<-mapply(gridDistance, RdTiles, origin=1)
@@ -38,4 +38,4 @@ proc.time() - ptm
 gc()
 
 #write out raster for further inspection
-writeRaster(distRdsR, filename=paste(tileOutDir,"distRdsR.tif",sep=''), format="GTiff", overwrite=TRUE)
+writeRaster(distRdsR, filename=paste(tileOutDir,"/distRdsR.tif",sep=''), format="GTiff", overwrite=TRUE)
