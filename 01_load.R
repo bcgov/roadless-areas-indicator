@@ -11,13 +11,6 @@
 # See the License for the specific language governing permissions and limitations under the License.
 
 source("header.R")
-require(raster)
-#install.packages('bcmaps.rdata', repos='https://bcgov.github.io/drat/')
-#Link to Provincial maps from bcgov/bcmaps - to do area summaries
-#library(devtools)
-#install_github("bcgov/bcmaps", build_vignettes = TRUE)
-#install.packages('bcmaps.rdata', repos='https://bcgov.github.io/drat/')
-library(bcmaps)
 
 RoadDens<-raster(paste(DataDir,"/RoadDensR.tif",sep=""))
 

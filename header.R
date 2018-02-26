@@ -1,6 +1,8 @@
 library(sf)
 library(dplyr)
 library(readr)
+library(raster)
+library(bcmaps)
 
 OutDir <- 'out'
 dataOutDir <- file.path(OutDir,'data')

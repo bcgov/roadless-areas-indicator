@@ -11,8 +11,6 @@
 # See the License for the specific language governing permissions and limitations under the License.
 
 source("header.R")
-require(raster)
-library(bcmaps)
 
 #Read in road surface - add 50m since 100m road already has a 50m buffer
 #
