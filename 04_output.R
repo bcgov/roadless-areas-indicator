@@ -49,7 +49,7 @@ col_vec<-c(brewer.pal(nclr,"RdYlGn"))
 #Strata <- bcmaps::ecosections(class = "sp") # from bcmaps
 #SrataName <-"ECOSECTION_NAME"
 Strata <- bcmaps::ecoregions(class = "sp") # from bcmaps
-SrataName <-"ECOREGION_NAME"
+SrataName <- "ECOREGION_NAME"
 #save strata as a shape for checking
 #writeOGR(obj=Strata, dsn=dataOutDir, layer="Strata", driver="ESRI Shapefile") # this is in geographical projection
 
@@ -80,30 +80,31 @@ gc()
 #Mapping function
 RdClsMap<-function(dat, Lbl, MCol, title=""){
   ggplot(data=dat, aes(x=x,y=y))+
-    geom_raster(aes(fill=factor(rdcls, labels=Lbl )), alpha=0.8) +
+    geom_raster(aes(fill=factor(rdcls, labels=Lbl)), alpha=0.8) +
     ggtitle(title)+
-    coord_equal()+ 
+    coord_fixed()+ 
     scale_x_continuous(expand = c(0,0)) + 
     scale_y_continuous(expand = c(0,0)) +
     scale_fill_manual(values= MCol, 
-                      name= "Distance Class",
-                      guide = guide_legend(
-                        direction = "horizontal",
-                        keyheight = unit(2, units = "mm"),
-                        keywidth = unit(70/length(labels), units = "mm"),
-                        title.position = 'top',
-                        title.hjust = 0.5,
-                        label.hjust = 1,
-                        nrow = 1,
-                        byrow = T,
-                        reverse = T,
-                        label.position = "bottom"
-                      )) +
+                      name= "Distance Class"
+                      # ,
+                      # guide = guide_legend(
+                      #   keyheight = unit(2, units = "mm"),
+                      #   keywidth = unit(70/length(labels), units = "mm"),
+                      #   title.position = 'top',
+                      #   title.hjust = 0.5,
+                      #   label.hjust = 1,
+                      #   nrow = 1,
+                      #   byrow = T,
+                      #   reverse = T,
+                      #   label.position = "bottom"
+                      # )
+                      ) +
     theme(
       #plot.title = element_text(size = 24, colour = "black"),
       axis.text=element_blank(),
       axis.title=element_blank(),
-      # legend.position="right",
+      legend.position="bottom",
       #legend.key.height=unit(2,"line"),
       # legend.key=element_blank(),
       #legend.text=element_text(size = 24, colour = "black"),
@@ -137,7 +138,7 @@ for (j in 1:length(rbyp_par_summary)) {
   StrataName<-names(rbyp_par_summary[j])
   
   #Subset Provincial preprocessed distance map for plotting
-  RdClsdf<-mask(roadsSC, Strata1)
+  RdClsdf<-Strata1
   #Quick check on percent that is un-roaded
   #tt<-freq(RdClsdf)*areaIN
   #pSum<-sum(tt[,2])-tt[5,2]
@@ -190,16 +191,16 @@ for (j in 1:length(rbyp_par_summary)) {
   plotMap<-RdClsMap(PRdClsdf,Lbl,MapCol, title=StrataName)
   
 #write Strata to a pdf: table, map, distance and cummulative graphs
-  pdf(file=file.path(figsOutDir,paste0(StrataName,"_Graphs.pdf")))
-    lay <- rbind(c(1,1,2,2), c(1,1,2,2),c(3,3,3,3))
-    #Alternatives to grid.arrange patchwork and cowplot
-    grid.arrange(plotDist, plotCumm, tbl, layout_matrix=lay,top=names(rbyp_par_summary[j]))
-    #+theme(plot.margin=unit(c(1,1,1,1), "cm"))
-    dev.off()
-   
-    x_res=ncol(RdClsdf)
-    y_res=nrow(RdClsdf)
-    png(file=file.path(figsOutDir,paste0(StrataName,".png")),width=x_res,height=y_res)
+  # png(file=file.path(figsOutDir,paste0(StrataName,"_Graphs.pdf")))
+  #   lay <- rbind(c(1,1,2,2), c(1,1,2,2),c(3,3,3,3))
+  #   #Alternatives to grid.arrange patchwork and cowplot
+  #   grid.arrange(plotDist, plotCumm, tbl, layout_matrix=lay,top=names(rbyp_par_summary[j]))
+  #   #+theme(plot.margin=unit(c(1,1,1,1), "cm"))
+  #   dev.off()
+  #  
+  x_res=ncol(RdClsdf)
+  y_res=nrow(RdClsdf)
+    envreportutils::png_retina(file=file.path(figsOutDir,paste0(StrataName,".png")))
     print(plotMap)
     dev.off()
 }
