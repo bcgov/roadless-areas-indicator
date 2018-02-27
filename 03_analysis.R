@@ -13,7 +13,7 @@
 source("header.R")
 
 #Read in road surface - add 50m since 100m road already has a 50m buffer
-#distRdsR<-raster(file.path(tileOutDir,"distRdsR.tif"), format="GTiff")+50
+#distRdsR<-raster(file.path(dataOutDir,"distRdsR.tif"), format="GTiff")+50
 roadsS<-distRdsR
 
 #define the distance class breaks 
@@ -47,7 +47,7 @@ writeRaster(roadsSC, filename=file.path(dataOutDir,"roadsSC.tif"), format="GTiff
 # reclassify the Provincial surface to a binary of 0-500 and >500
 recl<-matrix(reclPCls,ncol=3,byrow=TRUE)
 PRdclsP<-reclassify(roadsS, rcl=recl, right=FALSE, include.lowest=TRUE)
-saveRDS(PRdclsP, file = "tmp/rbyp_par")
+saveRDS(PRdclsP, file = "tmp/PRdclsP")
 
 #Calculate the patch size distribution
 #Code adapted from https://stackoverflow.com/questions/24465627/clump-raster-values-depending-on-class-attribute
@@ -76,11 +76,9 @@ r.NA[r==0]<- NA
     dplyr::select(patch, idn, areaHa) %>%
     group_by(patch)  %>%
     summarise(AreaHa=sum(areaHa),Npatch=(n()))
-
-# move the output to 04_output.R  
-  print(PatchGroup)
-  plot(PatchGroup$Npatch, type='l')
-
+# write out table as a csv
+   write_csv(PatchGroup, file.path(dataOutDir,"PatchGroup.csv"))
+   
 proc.time() - ptm 
 
 gc()

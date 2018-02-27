@@ -39,5 +39,5 @@ proc.time() - ptm
 gc()
 
 #write out raster for further inspection
-writeRaster(distRdsR, filename=file.path(tileOutDir,"distRdsR.tif"), format="GTiff", overwrite=TRUE)
+writeRaster(distRdsR, filename=file.path(dataOutDir,"distRdsR.tif"), format="GTiff", overwrite=TRUE)
 

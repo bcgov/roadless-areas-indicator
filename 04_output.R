@@ -31,17 +31,27 @@ roadsSC <- raster(file.path(dataOutDir,"roadsSC.tif"), format="GTiff")
 #Get ha of each grid cell based on cell size
 areaIN<-res(roadsSC)[1]*res(roadsSC)[2]/10000 #e.g. for 200m grid 4 ha
 
+#Read in ice and water for evaluating using them as part of the mapping
+#IceWaterIn <- mask(raster(file.path(DataDir,"IceWater.tif"), format="GTiff"),BCr)
+#IceWater<-aggregate(IceWaterIn, fact=16, fun=mean)
+#Ocean<-(IceWater==1)*6
+#Ocean[Ocean==0]<- NA
+#Ice<-(IceWater==3)*5
+#Ice[Ice==0]<-NA
+#Water<-(IceWater==2)*4
+#Water[Water==0]<-NA
+#Rd[Rd==0]<-NA
+#roads_sf<-readRDS(file = "data/DRA_roads_sf_clean.rds")
+
 #define some categorical variables and plotting labels based on distance breaks
-#DistanceCls<-c(0,500,1000,2000,5000,1000000)
-#Group 4 are the clumps
-DistanceCls<-c(0,1,2,3,4)
-#DistLbls<-c('0-500','500-1000','1000-2000','2000-5000','>5000')
-DistLbls<-c('0-500','500-5000','>5000','Other')
+DistanceCls<-c(0,1,2,3)
+DistLbls<-c('0-500','500-5000','>5000')
 CumLbls<-gsub(".*-","<",DistLbls)
 
 #Set up a standard set of colours for graphs and maps
 nclr<-length(DistLbls)
-col_vec<-c(brewer.pal(nclr,"RdYlGn"))
+col_vec<-c(brewer.pal(nclr,"Greens"))
+col_vec<-c('gray61','lightgreen','forestgreen')
 
 ## raster_by_poly with parallelization from Andy Teucher:
 #Generate a list of rasters, one for each strata - Slow for entire Province
@@ -67,7 +77,7 @@ names(rbyp_par_summary)[1]<-'Province'
 rbyp_par<-rbyp_par[lapply(rbyp_par_summary,length)>0]
 rbyp_par_summary<-rbyp_par_summary[lapply(rbyp_par_summary,length)>0] 
 #write out summaries for output routine
-dir.create("tmp")
+
 saveRDS(rbyp_par, file = "tmp/rbyp_par")
 saveRDS(rbyp_par_summary, file = "tmp/rbyp_par_summary")
 
@@ -77,16 +87,16 @@ gc()
 #### FUNCTIONS
 #A set of functions that will be called for displaying table, map and graphs
 
-#Mapping function
+#Mapping function - removed tile and legend
 RdClsMap<-function(dat, Lbl, MCol, title=""){
   ggplot(data=dat, aes(x=x,y=y))+
     geom_raster(aes(fill=factor(rdcls, labels=Lbl)), alpha=0.8) +
-    ggtitle(title)+
+    #ggtitle(title)+
     coord_fixed()+ 
     scale_x_continuous(expand = c(0,0)) + 
     scale_y_continuous(expand = c(0,0)) +
-    scale_fill_manual(values= MCol, 
-                      name= "Distance Class"
+    scale_fill_manual(values= MCol
+    #                  name= "Distance Class"
                       # ,
                       # guide = guide_legend(
                       #   keyheight = unit(2, units = "mm"),
@@ -104,9 +114,9 @@ RdClsMap<-function(dat, Lbl, MCol, title=""){
       #plot.title = element_text(size = 24, colour = "black"),
       axis.text=element_blank(),
       axis.title=element_blank(),
-      legend.position="bottom",
+      legend.position="none",
       #legend.key.height=unit(2,"line"),
-      # legend.key=element_blank(),
+      #legend.key=element_blank(),
       #legend.text=element_text(size = 24, colour = "black"),
       #legend.title=element_text(size = 24, colour = "black")
     )
@@ -127,10 +137,15 @@ plotCummulativeFn = function(data, Yvar, ScaleLabels, title){
 
 ###### END of FUNCTIONS
 
-#Loop through each strata and generate a pdf of summary table, map and graphs
-j<-1
+# Read in patch table and print table and a simple plot  
+PatchGroup<-read_csv(file.path(dataOutDir,"PatchGroup.csv"))
+print(PatchGroup)
+plot(PatchGroup$Npatch, type='l')
+
+#Loop through each strata and generate a png of summary table, map and graphs
+j<-31 #issues with this map will check high res to see if persists
 for (j in 1:length(rbyp_par_summary)) {
-  
+    
   #map of strata - clip raster to strata extent and colour consistent with graphs
   Strata1<-rbyp_par[[j]]
   
@@ -187,20 +202,27 @@ for (j in 1:length(rbyp_par_summary)) {
   #Change the raster to points for plotting at higher resolution
   PRdClsdf <- data.frame(rasterToPoints(RdClsdf))
   colnames(PRdClsdf) <- c('x', 'y', 'rdcls')
-
+ 
+ #Test plot with ice, water, roads
+ #col_vec<-c('gray61','lightgreen','forestgreen','darkblue','gray32')
+ #plot(RdClsdf)
+ #plot(Water, add=TRUE,col='blue')
+ #plot(Ice,add=TRUE,col='gray32')
+ #lines(roads_sf,col='red')
+ 
   plotMap<-RdClsMap(PRdClsdf,Lbl,MapCol, title=StrataName)
   
 #write Strata to a pdf: table, map, distance and cummulative graphs
-  # png(file=file.path(figsOutDir,paste0(StrataName,"_Graphs.pdf")))
-  #   lay <- rbind(c(1,1,2,2), c(1,1,2,2),c(3,3,3,3))
-  #   #Alternatives to grid.arrange patchwork and cowplot
-  #   grid.arrange(plotDist, plotCumm, tbl, layout_matrix=lay,top=names(rbyp_par_summary[j]))
-  #   #+theme(plot.margin=unit(c(1,1,1,1), "cm"))
-  #   dev.off()
+  png(file=file.path(figsOutDir,paste0(StrataName,"_Graphs.png")))
+     lay <- rbind(c(1,1,2,2), c(1,1,2,2),c(3,3,3,3))
+     #Alternatives to grid.arrange patchwork and cowplot
+     grid.arrange(plotDist, plotCumm, tbl, layout_matrix=lay,top=names(rbyp_par_summary[j]))
+     #+theme(plot.margin=unit(c(1,1,1,1), "cm"))
+     dev.off()
   #  
   x_res=ncol(RdClsdf)
   y_res=nrow(RdClsdf)
-    envreportutils::png_retina(file=file.path(figsOutDir,paste0(StrataName,".png")))
+    envreportutils::png_retina(file=file.path(figsOutDir,paste0(StrataName,".png")),width=x_res,height=y_res)
     print(plotMap)
     dev.off()
 }
