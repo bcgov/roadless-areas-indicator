@@ -14,4 +14,7 @@ dir.create(file.path(dataOutDir), showWarnings = FALSE)
 dir.create(file.path(tileOutDir), showWarnings = FALSE)
 dir.create(file.path(figsOutDir), showWarnings = FALSE)
 dir.create(DataDir, showWarnings = FALSE)
+dir.create("tmp", showWarnings = FALSE)
+
+
 

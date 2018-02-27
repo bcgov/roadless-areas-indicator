@@ -13,15 +13,16 @@
 source("header.R")
 
 #Read in road surface - add 50m since 100m road already has a 50m buffer
-#
-distRdsR<-raster(file.path(tileOutDir,"distRdsR.tif"), format="GTiff")+50
+#distRdsR<-raster(file.path(tileOutDir,"distRdsR.tif"), format="GTiff")+50
 roadsS<-distRdsR
 
 #define the distance class breaks 
-#reclCls<-c(0,500,1, 500,1000,2 ,1000,2000,3 ,2000,5000,4 ,5000,1000000,5)
 reclCls<-c(0,500,1, 500,5000,2 ,5000,1000000,3)
-#minimum intact clump size
-minClump<-2000
+
+# define the patch classes
+patchCls<-c(0,1000,2000,5000,10000,50000,100000,500000,1000000,10000000,1000000000)
+patchLbls<-c('0-1000','1000-2000','2000-5,000','5,000-10,000','10,000-50,000','50,000-100,000','100,000-500,000','500,000-1,000,000','1M-10M','>10M')
+reclPCls<-c(0,500,1,5000,1000000,2)
 
 ### TESTING - aggregate to coarser resolution to increase speed
 roadsAgg<-aggregate(distRdsR, fact=16, fun=mean) 
@@ -31,67 +32,54 @@ roadsS <- roadsAgg #for testing
 #Set the timer
 ptm <- proc.time()
 
-#Get ha of each grid cell based on cell size
+# Get ha of each grid cell based on cell size
 areaIN<-res(roadsS)[1]*res(roadsS)[2]/10000 #e.g. for 200m grid 4 ha
 
-#Reclass the Provincial surface to the desired distance class, the Province is 1 in the rbyp_par raster list
+# Reclass the Provincial surface to the desired distance class - 
+# - to be used in 04_output.R for maps and graphs
 recl<-matrix(reclCls,ncol=3,byrow=TRUE)
-#PRdcls<-reclassify(rbyp_par[[1]], rcl=recl, right=FALSE, include.lowest=TRUE)
-PRdcls<-reclassify(roadsS, rcl=recl, right=FALSE, include.lowest=TRUE)
+roadsSC<-reclassify(roadsS, rcl=recl, right=FALSE, include.lowest=TRUE)
+#Save files in tmp directory
+writeRaster(roadsSC, filename=file.path(dataOutDir,"roadsSC.tif"), format="GTiff", overwrite=TRUE)
 
-#Reclassify areas less than 2000ha 
+# Calculate the patch classes for areas >500m from a road - 
+# - generate a table to be sourced by the text on the frequency of small patches
+# reclassify the Provincial surface to a binary of 0-500 and >500
+recl<-matrix(reclPCls,ncol=3,byrow=TRUE)
+PRdclsP<-reclassify(roadsS, rcl=recl, right=FALSE, include.lowest=TRUE)
+saveRDS(PRdclsP, file = "tmp/rbyp_par")
+
+#Calculate the patch size distribution
 #Code adapted from https://stackoverflow.com/questions/24465627/clump-raster-values-depending-on-class-attribute
 r1<-PRdcls
 # extend raster, otherwise left and right edges are 'touching'
 r <- extend(r1, c(1,1))
-
 # get all unique class values in the raster
 clVal <- unique(r)
 nclVal <- length(clVal)
-
 # remove '0' (background)
 clVal <- clVal[!clVal==0]
-
 # create a 1-value raster, to be filled in with NA's
 r.NA <- setValues(raster(r), 1)
-
 # set background values to NA
 r.NA[r==0]<- NA
-
-# loop over all unique class values
-for (i in clVal) {
-  print(i)
-  # create & fill in class raster
+# create & fill in class raster
   r.class <- setValues(raster(r), NA)
-  r.class[r == i]<- 1
-  
+  r.class[r == 2]<- 1
   # clump class raster
   clp <- clump(r.class)
-  
-  # calculate frequency of each clump/patch
+  # calculate frequency of each patch
   cl.freq <- as.data.frame(freq(clp))
-  
-  # store clump ID's with frequency of minClump/areaIN - using 2000
-  rmID <- cl.freq$value[which(cl.freq$count <= round(minClump/areaIN))]
+  patch.freq <- data.frame(idn=cl.freq$value, areaHa=cl.freq$count*areaIN, patch=cut(cl.freq$count*areaIN,breaks=patchCls,labels=patchLbls))
+ # generate summary table 
+   PatchGroup<-patch.freq %>%
+    dplyr::select(patch, idn, areaHa) %>%
+    group_by(patch)  %>%
+    summarise(AreaHa=sum(areaHa),Npatch=(n()))
 
-  # assign NA to all clumps whose ID's have frequency 2000/areaIN
-  #r.NA[clp %in% rmID] <- NA
-  #set the small areas to a distance class unique identifier
-  r.NA[clp %in% rmID] <- (i + nclVal) # 1  2  3  4  5  6 14 24 36 50?
-  #writeRaster(r.NA, filename=file.path(dataOutDir,paste0("r.NA",i,".tif")), format="GTiff", overwrite=TRUE)
-  gc()
-  } 
-
-# multiply original raster by the NA raster
-r2 <- r * r.NA
-
-# crop the originally extended raster
-roadsSC <- crop(r2, r1)
-
-# assign all clumps to a single group
-roadsSC[roadsSC > nclVal] <- (nclVal+1)
-
-writeRaster(roadsSC, filename=file.path(dataOutDir,"roadsSC.tif"), format="GTiff", overwrite=TRUE)
+# move the output to 04_output.R  
+  print(PatchGroup)
+  plot(PatchGroup$Npatch, type='l')
 
 proc.time() - ptm 
 
