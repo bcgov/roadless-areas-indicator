@@ -1,0 +1,45 @@
+---
+title: "Roadless lands by ecoregion"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(leaflet)
+library(bcmaps)
+library(sf)
+library(dplyr)
+library(rmapshaper)
+
+ecoreg <- ecoregions() %>% 
+  ms_simplify() %>% 
+  st_intersection(bc_bound()) %>% 
+  st_transform(4326)
+
+labels <- sprintf(
+  "<strong>%s</strong>",
+  tools::toTitleCase(tolower(ecoreg$ECOREGION_NAME))
+) %>% lapply(htmltools::HTML)
+```
+
+
+```{r map, echo=FALSE}
+leaflet(ecoreg) %>% 
+  setView(lng = -126.5, lat = 54.5, zoom = 5) %>% 
+  addProviderTiles("OpenStreetMap.BlackAndWhite") %>% 
+  addPolygons(color = "#00441b", fillColor = "#006d2c",
+              weight = 1, fillOpacity = 0.2,
+              highlightOptions = highlightOptions(fillOpacity = 0.6,
+                                                  weight = 2,
+                                                  bringToFront = TRUE), 
+              label = labels, 
+              popup = "Hi")
+```
+
+```{r}
+mapView(ecoreg, alpha.regions = 0.2, 
+        highlight = highlightOptions(fillOpacity = 0.6,
+                                                  weight = 2,
+                                                  bringToFront = TRUE))
+```
+
