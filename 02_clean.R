@@ -11,6 +11,8 @@
 # See the License for the specific language governing permissions and limitations under the License.
 
 require(SpaDES)
+library(parallel)
+library(doMC)
 
 #Common parameters
 nTiles<-100
@@ -24,10 +26,10 @@ Rd<-RoadDensP100>0
 
 ptm <- proc.time()
 #To remove edge effects a 100 (5000/5km) cell buffer is used
-RdTiles=splitRaster(Rd, nx=sqrt(nTiles), ny=sqrt(nTiles), buffer=c(Tilebuf,Tilebuf), path=paste(tileOutDir,'/',sep=''))
+RdTiles=splitRaster(Rd, nx=sqrt(nTiles), ny=sqrt(nTiles), buffer=c(Tilebuf,Tilebuf), path=tileOutDir)
 
 #Use mapply to apply gridDistance over RdTiles
-dT<-mapply(gridDistance, RdTiles, origin=1)
+dT<-mclapply(RdTiles, gridDistance, origin=1, mc.cores = 3)
 dTmerge<-mergeRaster(dT)
 
 #Set all non-terrestiral area to NA
@@ -38,3 +40,4 @@ gc()
 
 #write out raster for further inspection
 writeRaster(distRdsR, filename=file.path(tileOutDir,"distRdsR.tif"), format="GTiff", overwrite=TRUE)
+
