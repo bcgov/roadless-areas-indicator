@@ -90,12 +90,22 @@ gc()
 #### FUNCTIONS
 #A set of functions that will be called for displaying table, map and graphs
 
+ggmap_strata <- function(strata) {
+  
+  e <- extent(projectExtent(strata, "+init=epsg:4326"))
+  loc <- c(e[1], e[3], e[2], e[4])
+  
+  gmap <- get_map(loc, maptype = "satellite")
+  gmap
+}
+
 #Mapping function - removed tile and legend
 RdClsMap<-function(dat, Lbl, MCol, title=""){
+  
   ggplot(data=dat, aes(x=x,y=y))+
-    geom_raster(aes(fill=factor(rdcls, labels=Lbl)), alpha=0.8) +
+    geom_raster(aes(fill=factor(rdcls, labels=Lbl)), alpha=0.6) +
     #ggtitle(title)+
-    coord_fixed()+ 
+    coord_fixed() + 
     scale_x_continuous(expand = c(0,0)) + 
     scale_y_continuous(expand = c(0,0)) +
     scale_fill_manual(values= MCol
@@ -113,11 +123,14 @@ RdClsMap<-function(dat, Lbl, MCol, title=""){
                       #   label.position = "bottom"
                       # )
                       ) +
+    labs(fill = "Distance to Roads") + 
+    theme_minimal() + 
     theme(
       #plot.title = element_text(size = 24, colour = "black"),
       axis.text=element_blank(),
       axis.title=element_blank(),
-      legend.position="none",
+      legend.position="bottom",
+      panel.grid = element_blank()
       #legend.key.height=unit(2,"line"),
       #legend.key=element_blank(),
       #legend.text=element_text(size = 24, colour = "black"),
