@@ -13,7 +13,7 @@
 source("header.R")
 
 #Read in road surface - add 50m since 100m road already has a 50m buffer
-#distRdsR<-raster(file.path(dataOutDir,"distRdsR.tif"), format="GTiff")+50
+distRdsR<-raster(file.path(dataOutDir,"distRdsR.tif"), format="GTiff")+50
 roadsS<-distRdsR
 
 #define the distance class breaks 
@@ -51,7 +51,7 @@ saveRDS(PRdclsP, file = "tmp/PRdclsP")
 
 #Calculate the patch size distribution
 #Code adapted from https://stackoverflow.com/questions/24465627/clump-raster-values-depending-on-class-attribute
-r1<-PRdcls
+r1<-PRdclsP
 # extend raster, otherwise left and right edges are 'touching'
 r <- extend(r1, c(1,1))
 # get all unique class values in the raster

@@ -58,7 +58,10 @@ col_vec<-c('gray61','lightgreen','forestgreen')
 #strata to evaluate
 #Strata <- bcmaps::ecosections(class = "sp") # from bcmaps
 #SrataName <-"ECOSECTION_NAME"
-Strata <- bcmaps::ecoregions(class = "sp") # from bcmaps
+Strata <- bcmaps::ecoregions() %>% 
+  st_intersection(bc_bound_hres()) %>% 
+  as("Spatial")# from bcmaps
+
 SrataName <- "ECOREGION_NAME"
 #save strata as a shape for checking
 #writeOGR(obj=Strata, dsn=dataOutDir, layer="Strata", driver="ESRI Shapefile") # this is in geographical projection
@@ -222,7 +225,7 @@ for (j in 1:length(rbyp_par_summary)) {
   #  
   x_res=ncol(RdClsdf)
   y_res=nrow(RdClsdf)
-    envreportutils::png_retina(file=file.path(figsOutDir,paste0(StrataName,".png")),width=x_res,height=y_res)
+    envreportutils::png_retina(file=file.path(figsOutDir,paste0(StrataName,".png")))
     print(plotMap)
     dev.off()
 }
