@@ -13,8 +13,7 @@
 source("header.R")
 
 #Read in road surface - add 50m since 100m road already has a 50m buffer
-distRdsR<-raster(file.path(dataOutDir,"distRdsR.tif"), format="GTiff")+50
-roadsS<-distRdsR
+roadsS<-raster(file.path(dataOutDir,"dTmerge.tif"), format="GTiff")+50
 
 #define the distance class breaks 
 reclCls<-c(0,500,1, 500,5000,2 ,5000,1000000,3)
@@ -35,22 +34,26 @@ ptm <- proc.time()
 areaIN<-res(roadsS)[1]*res(roadsS)[2]/10000 #e.g. for 200m grid 4 ha
 
 # Reclass the Provincial surface to the desired distance class - 
-# - to be used in 04_output.R for maps and graphs
+# do not mask since the strata clip in 04_output.R will do
 recl<-matrix(reclCls,ncol=3,byrow=TRUE)
-roadsSC<-reclassify(roadsS, rcl=recl, right=FALSE, include.lowest=TRUE)
+EcoRegRast<-reclassify(roadsS, rcl=recl, right=FALSE, include.lowest=TRUE)
+# mask the surface for provincial reporting in 04_output.R
+ProvRast<-mask(EcoRegRast, BCr)
+
 #Save files in tmp directory
-writeRaster(roadsSC, filename=file.path(dataOutDir,"roadsSC.tif"), format="GTiff", overwrite=TRUE)
+writeRaster(EcoRegRast, filename=file.path(dataOutDir,"EcoRegRast.tif"), format="GTiff", overwrite=TRUE)
+writeRaster(ProvRast, filename=file.path(dataOutDir,"ProvRast.tif"), format="GTiff", overwrite=TRUE)
 
 # Calculate the patch classes for areas >500m from a road - 
 # - generate a table to be sourced by the text on the frequency of small patches
 # reclassify the Provincial surface to a binary of 0-500 and >500
 recl<-matrix(reclPCls,ncol=3,byrow=TRUE)
-roadsSC<-reclassify(roadsS, rcl=recl, right=FALSE, include.lowest=TRUE)
+roadsSC<-reclassify(ProvRast, rcl=recl, right=FALSE, include.lowest=TRUE)
 writeRaster(roadsSC, filename=file.path(dataOutDir,"roadsSC.tif"), format="GTiff", overwrite=TRUE)
 
 #Calculate the patch size distribution
 #Code adapted from https://stackoverflow.com/questions/24465627/clump-raster-values-depending-on-class-attribute
-r1<-PRdclsP
+r1<-roadsSC
 # extend raster, otherwise left and right edges are 'touching'
 r <- extend(r1, c(1,1))
 # get all unique class values in the raster
