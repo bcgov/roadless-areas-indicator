@@ -13,7 +13,7 @@
 source("header.R")
 
 #Read in road surface - add 50m since 100m road already has a 50m buffer
-#distRdsR<-raster(file.path(dataOutDir,"distRdsR.tif"), format="GTiff")+50
+distRdsR<-raster(file.path(dataOutDir,"distRdsR.tif"), format="GTiff")+50
 roadsS<-distRdsR
 
 #define the distance class breaks 
@@ -25,8 +25,8 @@ patchLbls<-c('0-1000','1000-2000','2000-5,000','5,000-10,000','10,000-50,000','5
 reclPCls<-c(0,500,1,5000,1000000,2)
 
 ### TESTING - aggregate to coarser resolution to increase speed
-roadsAgg<-aggregate(distRdsR, fact=16, fun=mean) 
-roadsS <- roadsAgg #for testing
+#roadsAgg<-aggregate(distRdsR, fact=16, fun=mean) 
+#roadsS <- roadsAgg #for testing
 ###
 
 #Set the timer
@@ -48,10 +48,11 @@ writeRaster(roadsSC, filename=file.path(dataOutDir,"roadsSC.tif"), format="GTiff
 recl<-matrix(reclPCls,ncol=3,byrow=TRUE)
 PRdclsP<-reclassify(roadsS, rcl=recl, right=FALSE, include.lowest=TRUE)
 saveRDS(PRdclsP, file = "tmp/PRdclsP")
+writeRaster(roadsSC, filename=file.path(dataOutDir,"roadsSC.tif"), format="GTiff", overwrite=TRUE)
 
 #Calculate the patch size distribution
 #Code adapted from https://stackoverflow.com/questions/24465627/clump-raster-values-depending-on-class-attribute
-r1<-PRdcls
+r1<-PRdclsP
 # extend raster, otherwise left and right edges are 'touching'
 r <- extend(r1, c(1,1))
 # get all unique class values in the raster
