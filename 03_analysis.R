@@ -25,8 +25,7 @@ patchLbls<-c('0-1000','1000-2000','2000-5,000','5,000-10,000','10,000-50,000','5
 reclPCls<-c(0,500,1,5000,1000000,2)
 
 ### TESTING - aggregate to coarser resolution to increase speed
-#roadsAgg<-aggregate(distRdsR, fact=16, fun=mean) 
-#roadsS <- roadsAgg #for testing
+#roadsS<-aggregate(distRdsR, fact=16, fun=mean) #For testing
 ###
 
 #Set the timer
@@ -46,8 +45,7 @@ writeRaster(roadsSC, filename=file.path(dataOutDir,"roadsSC.tif"), format="GTiff
 # - generate a table to be sourced by the text on the frequency of small patches
 # reclassify the Provincial surface to a binary of 0-500 and >500
 recl<-matrix(reclPCls,ncol=3,byrow=TRUE)
-PRdclsP<-reclassify(roadsS, rcl=recl, right=FALSE, include.lowest=TRUE)
-saveRDS(PRdclsP, file = "tmp/PRdclsP")
+roadsSC<-reclassify(roadsS, rcl=recl, right=FALSE, include.lowest=TRUE)
 writeRaster(roadsSC, filename=file.path(dataOutDir,"roadsSC.tif"), format="GTiff", overwrite=TRUE)
 
 #Calculate the patch size distribution
