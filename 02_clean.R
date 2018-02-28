@@ -33,11 +33,12 @@ dT<-mclapply(RdTiles, gridDistance, origin=1, mc.cores = 3)
 dTmerge<-mergeRaster(dT)
 
 #Set all non-terrestiral area to NA
-distRdsR<-mask(dTmerge, BCr)
+roadsS<-mask(dTmerge, BCr)
+EcoRegRast<-dTmerge
 
 proc.time() - ptm 
 gc()
 
 #write out raster for further inspection
-writeRaster(distRdsR, filename=file.path(dataOutDir,"distRdsR.tif"), format="GTiff", overwrite=TRUE)
+writeRaster(dTmerge, filename=file.path(dataOutDir,"dTmerge.tif"), format="GTiff", overwrite=TRUE)
 
