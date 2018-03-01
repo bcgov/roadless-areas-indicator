@@ -11,20 +11,20 @@
 # See the License for the specific language governing permissions and limitations under the License.
 
 source("header.R")
-
-library(dplyr)
-library(ggplot2)
-library(devtools)
-library(tidyverse)
-library(rgdal)
 library(RColorBrewer)
-library(gapminder)
 library(gridExtra)
+
+#library(ggplot2)
+#library(dplyr)
+#library(devtools)
+#library(tidyverse)
+#library(rgdal)
+#library(gapminder)
 #library(pryr)
-library(grid)
-library(gridGraphics)
-library(rasterVis)
-library(igraph)
+#library(grid)
+#library(gridGraphics)
+#library(rasterVis)
+#library(igraph)
 
 #Set/Read in provincial map
 roadsSC <- raster(file.path(dataOutDir,"roadsSC.tif"), format="GTiff")
@@ -80,6 +80,8 @@ rbyp_par_summary<-rbyp_par_summary[lapply(rbyp_par_summary,length)>0]
 
 saveRDS(rbyp_par, file = "tmp/rbyp_par")
 saveRDS(rbyp_par_summary, file = "tmp/rbyp_par_summary")
+rbyp_par<-readRDS(file = "tmp/rbyp_par")
+rbyp_par_summary<-readRDS(file = "tmp/rbyp_par_summary")
 
 #clean up the workspace
 gc()
