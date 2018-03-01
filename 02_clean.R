@@ -28,11 +28,11 @@ RdTiles=splitRaster(Rd, nx=sqrt(nTiles), ny=sqrt(nTiles), buffer=c(Tilebuf,Tileb
 
 #Use mapply to apply gridDistance over RdTiles
 dT<-mclapply(RdTiles, gridDistance, origin=1, mc.cores = 3)
-dTmerge<-mergeRaster(dT)
+roadsS<-mergeRaster(dT)
 
 proc.time() - ptm 
 gc()
 
 #write out raster for further inspection
-writeRaster(dTmerge, filename=file.path(dataOutDir,"dTmerge.tif"), format="GTiff", overwrite=TRUE)
+writeRaster(roadsS, filename=file.path(dataOutDir,"roadsS.tif"), format="GTiff", overwrite=TRUE)
 

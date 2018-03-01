@@ -13,7 +13,7 @@
 source("header.R")
 
 #Read in road surface - add 50m since 100m road already has a 50m buffer
-roadsS<-raster(file.path(dataOutDir,"dTmerge.tif"), format="GTiff")+50
+roadsS<-raster(file.path(dataOutDir,"roadsS.tif"), format="GTiff")+50
 
 #define the distance class breaks 
 reclCls<-c(0,500,1, 500,5000,2 ,5000,1000000,3)
@@ -24,7 +24,7 @@ patchLbls<-c('0-1000','1000-2000','2000-5,000','5,000-10,000','10,000-50,000','5
 reclPCls<-c(0,500,1,5000,1000000,2)
 
 ### TESTING - aggregate to coarser resolution to increase speed
-roadsS<-aggregate(distRdsR, fact=16, fun=mean) #For testing
+roadsS<-aggregate(roadsS, fact=16, fun=mean) #For testing
 BCr<-aggregate(BCr, fact=16, fun=mean)
 ###
 
