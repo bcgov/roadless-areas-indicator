@@ -66,12 +66,9 @@ SrataName <- "ECOREGION_NAME"
 #save strata as a shape for checking
 #writeOGR(obj=Strata, dsn=dataOutDir, layer="Strata", driver="ESRI Shapefile") # this is in geographical projection
 
-#Crop strata to raster extent
-ClipS<-crop(Strata,roadsSC)
-
 ## raster_by_poly with parallelization from Andy Teucher:
 #Generate a list of rasters, one for each strata - Slow for entire Province
-rbyp_par <- raster_by_poly(roadsSC, ClipS, SrataName, parallel = TRUE)
+rbyp_par <- raster_by_poly(roadsSC, Strata, SrataName, parallel = TRUE)
 rbyp_par<-c(roadsSC,rbyp_par)
 rbyp_par_summary <- summarize_raster_list(rbyp_par)
 names(rbyp_par_summary)[1]<-'Province'
@@ -91,21 +88,39 @@ gc()
 #A set of functions that will be called for displaying table, map and graphs
 
 ggmap_strata <- function(strata) {
+  e <- extent(strata)
+  loc <- c(e[1] - 2, e[3] - 2, e[2] + 2, e[4] + 2)
   
-  e <- extent(projectExtent(strata, "+init=epsg:4326"))
-  loc <- c(e[1], e[3], e[2], e[4])
+  get_map(loc, maptype = "satellite")
   
-  gmap <- get_map(loc, maptype = "satellite")
-  gmap
 }
 
 #Mapping function - removed tile and legend
-RdClsMap<-function(dat, Lbl, MCol, title=""){
+RdClsMap<-function(dat, Lbl, MCol, title="", plot_gmap = FALSE, legend = FALSE){
   
-  ggplot(data=dat, aes(x=x,y=y))+
-    geom_raster(aes(fill=factor(rdcls, labels=Lbl)), alpha=0.6) +
+  # dat_poly <- spTransform(dat_poly, "+init=epsg:4326")
+  # dat_poly@data$id <- 1:nrow(dat_poly@data)
+  # dat_df <- fortify(dat_poly)
+  # dat_df <- merge(dat_df, dat_poly@data, by.x = "id", by.y = "id")
+  
+  if (plot_gmap) {
+    dat <- projectRaster(dat, crs = CRS("+proj=longlat +datum=WGS84"))
+    dat_pts <- data.frame(rasterToPoints(dat))
+    dat_pts$roadsSC <- round(dat_pts$roadsSC)
+    gmap <- ggmap_strata(dat)
+    gg_start <- ggmap(gmap)
+    coords <- coord_cartesian(xlim = range(dat_pts$x), ylim = range(dat_pts$y), expand = TRUE)
+  } else {
+    dat_pts <- data.frame(rasterToPoints(dat))
+    gg_start <- ggplot()
+    coords <- coord_fixed()
+  }
+  
+  gg_start +
+    geom_raster(data = dat_pts, aes(x = x, y = y, fill=factor(roadsSC, labels=Lbl),
+                                    colour = NULL), alpha=0.5) +
     #ggtitle(title)+
-    coord_fixed() + 
+    coords + 
     scale_x_continuous(expand = c(0,0)) + 
     scale_y_continuous(expand = c(0,0)) +
     scale_fill_manual(values= MCol
@@ -129,7 +144,7 @@ RdClsMap<-function(dat, Lbl, MCol, title=""){
       #plot.title = element_text(size = 24, colour = "black"),
       axis.text=element_blank(),
       axis.title=element_blank(),
-      legend.position="bottom",
+      legend.position=ifelse(legend, "bottom", "none"),
       panel.grid = element_blank()
       #legend.key.height=unit(2,"line"),
       #legend.key=element_blank(),
@@ -159,8 +174,8 @@ print(PatchGroup)
 plot(PatchGroup$Npatch, type='l')
 
 #Loop through each strata and generate a png of summary table, map and graphs
-j<-31 #issues with this map will check high res to see if persists
-for (j in 1:length(rbyp_par_summary)) {
+j<-25 #issues with this map will check high res to see if persists
+plot_list <- lapply(seq_along(1:3), function(j) {
     
   #map of strata - clip raster to strata extent and colour consistent with graphs
   Strata1<-rbyp_par[[j]]
@@ -214,10 +229,6 @@ for (j in 1:length(rbyp_par_summary)) {
   nUnique<-length(unique(RdClsdf))
   Lbl<-DistLbls[1:nUnique]
   MapCol<-col_vec[1:nUnique]
-  
-  #Change the raster to points for plotting at higher resolution
-  PRdClsdf <- data.frame(rasterToPoints(RdClsdf))
-  colnames(PRdClsdf) <- c('x', 'y', 'rdcls')
  
  #Test plot with ice, water, roads
  #col_vec<-c('gray61','lightgreen','forestgreen','darkblue','gray32')
@@ -226,19 +237,23 @@ for (j in 1:length(rbyp_par_summary)) {
  #plot(Ice,add=TRUE,col='gray32')
  #lines(roads_sf,col='red')
  
-  plotMap<-RdClsMap(PRdClsdf,Lbl,MapCol, title=StrataName)
+  if (StrataName == "Province") {
+    plotMap<-RdClsMap(RdClsdf,Lbl,MapCol, title=StrataName, 
+                      plot_gmap = FALSE, legend = FALSE)
+  } else {
+    plotMap<-RdClsMap(RdClsdf,Lbl,MapCol, title=StrataName, 
+                      plot_gmap = TRUE, legend = TRUE)
+  }
   
 #write Strata to a pdf: table, map, distance and cummulative graphs
-  png(file=file.path(figsOutDir,paste0(StrataName,"_Graphs.png")))
-     lay <- rbind(c(1,1,2,2), c(1,1,2,2),c(3,3,3,3))
-     #Alternatives to grid.arrange patchwork and cowplot
-     grid.arrange(plotDist, plotCumm, tbl, layout_matrix=lay,top=names(rbyp_par_summary[j]))
-     #+theme(plot.margin=unit(c(1,1,1,1), "cm"))
-     dev.off()
+  # png(file=file.path(figsOutDir,paste0(StrataName,"_Graphs.png")))
+  #    lay <- rbind(c(1,1,2,2), c(1,1,2,2),c(3,3,3,3))
+  #    #Alternatives to grid.arrange patchwork and cowplot
+  #    grid.arrange(plotDist, plotCumm, tbl, layout_matrix=lay,top=names(rbyp_par_summary[j]))
+  #    #+theme(plot.margin=unit(c(1,1,1,1), "cm"))
+  #    dev.off()
   #  
-  x_res=ncol(RdClsdf)
-  y_res=nrow(RdClsdf)
-    envreportutils::png_retina(file=file.path(figsOutDir,paste0(StrataName,".png")))
-    print(plotMap)
-    dev.off()
-}
+    # envreportutils::png_retina(file=file.path(figsOutDir,paste0(StrataName,".png")))
+    plotMap
+    # dev.off()
+})
