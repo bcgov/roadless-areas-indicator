@@ -14,6 +14,7 @@ source("header.R")
 library(RColorBrewer)
 library(gridExtra)
 library(ggplot2)
+library(purrr)
 
 #library(dplyr)
 #library(devtools)
@@ -82,6 +83,20 @@ saveRDS(rbyp_par, file = "tmp/rbyp_par")
 saveRDS(rbyp_par_summary, file = "tmp/rbyp_par_summary")
 rbyp_par<-readRDS(file = "tmp/rbyp_par")
 rbyp_par_summary<-readRDS(file = "tmp/rbyp_par_summary")
+
+## Make a data frame of ecoregion metrics of distance to roads
+ecoreg_summary <- map_df(rbyp_par_summary, ~ {
+  xDF <- data.frame(Distance=.x,
+                  distance_class=cut(.x, breaks = DistanceCls, labels=DistLbls),#, right=FALSE, include.lowest=TRUE),
+                  area_ha=areaIN) 
+  
+  #Group by Distance Class 
+  xDFGroup<-xDF %>%
+    dplyr::select(distance_class, area_ha) %>%
+    group_by(distance_class)  %>%
+    summarise(area_ha=sum(area_ha)) %>% 
+    mutate(percent_in_distance_class = area_ha/sum(area_ha)*100)
+}, .id = "name")
 
 #clean up the workspace
 gc()
