@@ -13,8 +13,8 @@
 source("header.R")
 library(RColorBrewer)
 library(gridExtra)
+library(ggplot2)
 
-#library(ggplot2)
 #library(dplyr)
 #library(devtools)
 #library(tidyverse)
@@ -176,7 +176,7 @@ print(PatchGroup)
 plot(PatchGroup$Npatch, type='l')
 
 #Loop through each strata and generate a png of summary table, map and graphs
-j<-25 #issues with this map will check high res to see if persists
+j<-1
 plot_list <- lapply(seq_along(1:3), function(j) {
     
   #map of strata - clip raster to strata extent and colour consistent with graphs
@@ -247,7 +247,7 @@ plot_list <- lapply(seq_along(1:3), function(j) {
                       plot_gmap = TRUE, legend = TRUE)
   }
   
-#write Strata to a pdf: table, map, distance and cummulative graphs
+#write Strata to a png: table, map, distance and cummulative graphs
   # png(file=file.path(figsOutDir,paste0(StrataName,"_Graphs.png")))
   #    lay <- rbind(c(1,1,2,2), c(1,1,2,2),c(3,3,3,3))
   #    #Alternatives to grid.arrange patchwork and cowplot
