@@ -18,8 +18,6 @@ library(doMC)
 nTiles<-100
 Tilebuf<-100
 
-tileOutDir<-file.path(dataOutDir,"Ptiles")
-
 #set RoadDensP as a binary road/no-road
 #RoadDensP100<-raster(file.path(dataOutDir,"RoadDensP100.tif"))
 Rd<-RoadDensP100>0
@@ -31,10 +29,6 @@ RdTiles=splitRaster(Rd, nx=sqrt(nTiles), ny=sqrt(nTiles), buffer=c(Tilebuf,Tileb
 #Use mapply to apply gridDistance over RdTiles
 dT<-mclapply(RdTiles, gridDistance, origin=1, mc.cores = 3)
 dTmerge<-mergeRaster(dT)
-
-#Set all non-terrestiral area to NA
-roadsS<-mask(dTmerge, BCr)
-EcoRegRast<-dTmerge
 
 proc.time() - ptm 
 gc()

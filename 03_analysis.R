@@ -24,7 +24,8 @@ patchLbls<-c('0-1000','1000-2000','2000-5,000','5,000-10,000','10,000-50,000','5
 reclPCls<-c(0,500,1,5000,1000000,2)
 
 ### TESTING - aggregate to coarser resolution to increase speed
-#roadsS<-aggregate(distRdsR, fact=16, fun=mean) #For testing
+roadsS<-aggregate(distRdsR, fact=16, fun=mean) #For testing
+BCr<-aggregate(BCr, fact=16, fun=mean)
 ###
 
 #Set the timer
@@ -36,19 +37,19 @@ areaIN<-res(roadsS)[1]*res(roadsS)[2]/10000 #e.g. for 200m grid 4 ha
 # Reclass the Provincial surface to the desired distance class - 
 # do not mask since the strata clip in 04_output.R will do
 recl<-matrix(reclCls,ncol=3,byrow=TRUE)
-EcoRegRast<-reclassify(roadsS, rcl=recl, right=FALSE, include.lowest=TRUE)
+EcoRegRastS<-reclassify(roadsS, rcl=recl, right=FALSE, include.lowest=TRUE)
 # mask the surface for provincial reporting in 04_output.R
-ProvRast<-mask(EcoRegRast, BCr)
+ProvRastS<-mask(EcoRegRastS, BCr)
 
 #Save files in tmp directory
-writeRaster(EcoRegRast, filename=file.path(dataOutDir,"EcoRegRast.tif"), format="GTiff", overwrite=TRUE)
-writeRaster(ProvRast, filename=file.path(dataOutDir,"ProvRast.tif"), format="GTiff", overwrite=TRUE)
+writeRaster(EcoRegRastS, filename=file.path(dataOutDir,"EcoRegRast.tif"), format="GTiff", overwrite=TRUE)
+writeRaster(ProvRastS, filename=file.path(dataOutDir,"ProvRast.tif"), format="GTiff", overwrite=TRUE)
 
 # Calculate the patch classes for areas >500m from a road - 
 # - generate a table to be sourced by the text on the frequency of small patches
 # reclassify the Provincial surface to a binary of 0-500 and >500
 recl<-matrix(reclPCls,ncol=3,byrow=TRUE)
-roadsSC<-reclassify(ProvRast, rcl=recl, right=FALSE, include.lowest=TRUE)
+roadsSC<-reclassify(ProvRastS, rcl=recl, right=FALSE, include.lowest=TRUE)
 writeRaster(roadsSC, filename=file.path(dataOutDir,"roadsSC.tif"), format="GTiff", overwrite=TRUE)
 
 #Calculate the patch size distribution
