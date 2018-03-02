@@ -277,11 +277,13 @@ for (n in names(plot_list)) {
   barchart <- plot_list[[n]]$barchart
   map <- plot_list[[n]]$map
   map_fname <- file.path(figsOutDir, paste0(n, "_map.png"))
-  barchart_fname <- file.path(figsOutDir, paste0(n, "_barchart.png"))
-  png_retina(filename = barchart_fname)
-  plot(barchart)
+  barchart_fname <- file.path(figsOutDir, paste0(n, "_barchart.svg"))
+  p <- barchart + theme(axis.text = element_text(size = 14),
+                   axis.title = element_text(size = 16))
+  svg_px(file = barchart_fname, width = 500, height = 500)
+  plot(p)
   dev.off()
-  png_retina(filename = map_fname)
+  png_retina(filename = map_fname, width = 500, height = 500, units = "px")
   plot(map)
   dev.off()
 }
