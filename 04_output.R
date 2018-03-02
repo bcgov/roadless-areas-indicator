@@ -51,7 +51,7 @@ CumLbls<-gsub(".*-","<",DistLbls)
 
 #Set up a standard set of colours for graphs and maps
 nclr<-length(DistLbls)
-col_vec<-c(brewer.pal(nclr,"Greens"))
+# col_vec<-c(brewer.pal(nclr,"Greens"))
 col_vec<-c('gray61','lightgreen','forestgreen')
 
 ## raster_by_poly with parallelization from Andy Teucher:
@@ -72,7 +72,8 @@ SrataName <- "ECOREGION_NAME"
 rbyp_par <- raster_by_poly(roadsSC, Strata, SrataName, parallel = TRUE)
 rbyp_par<-c(roadsSC,rbyp_par)
 rbyp_par_summary <- summarize_raster_list(rbyp_par)
-names(rbyp_par_summary)[1]<-'Province'
+names(rbyp_par)[1] <- names(rbyp_par_summary)[1] <- 'Province'
+
 
 #Check if there is data in strata, if none then drop strata from list
 rbyp_par<-rbyp_par[lapply(rbyp_par_summary,length)>0]
@@ -113,8 +114,8 @@ ggmap_strata <- function(strata) {
 }
 
 #Mapping function - removed tile and legend
-RdClsMap<-function(dat, Lbl, MCol, title="", plot_gmap = FALSE, legend = FALSE){
-  
+RdClsMap<-function(dat, Lbl, MCol, title="", plot_gmap = FALSE, legend = FALSE, n_classes = 3){
+
   # dat_poly <- spTransform(dat_poly, "+init=epsg:4326")
   # dat_poly@data$id <- 1:nrow(dat_poly@data)
   # dat_df <- fortify(dat_poly)
@@ -133,46 +134,32 @@ RdClsMap<-function(dat, Lbl, MCol, title="", plot_gmap = FALSE, legend = FALSE){
     coords <- coord_fixed()
   }
   
+  if (n_classes == 2) {
+    dat_pts$roadsSC[dat_pts$roadsSC == 3] <- 2
+    Lbl <- c(Lbl[1], ">500m")
+    MCol <- MCol[c(1,3)]
+  }
+  
   gg_start +
     geom_raster(data = dat_pts, aes(x = x, y = y, fill=factor(roadsSC, labels=Lbl),
-                                    colour = NULL), alpha=0.5) +
-    #ggtitle(title)+
+                                    colour = NULL), alpha=0.8) +
     coords + 
     scale_x_continuous(expand = c(0,0)) + 
     scale_y_continuous(expand = c(0,0)) +
-    scale_fill_manual(values= MCol
-    #                  name= "Distance Class"
-                      # ,
-                      # guide = guide_legend(
-                      #   keyheight = unit(2, units = "mm"),
-                      #   keywidth = unit(70/length(labels), units = "mm"),
-                      #   title.position = 'top',
-                      #   title.hjust = 0.5,
-                      #   label.hjust = 1,
-                      #   nrow = 1,
-                      #   byrow = T,
-                      #   reverse = T,
-                      #   label.position = "bottom"
-                      # )
-                      ) +
+    scale_fill_manual(values= MCol) +
     labs(fill = "Distance to Roads") + 
     theme_minimal() + 
     theme(
-      #plot.title = element_text(size = 24, colour = "black"),
       axis.text=element_blank(),
       axis.title=element_blank(),
       legend.position=ifelse(legend, "bottom", "none"),
       panel.grid = element_blank()
-      #legend.key.height=unit(2,"line"),
-      #legend.key=element_blank(),
-      #legend.text=element_text(size = 24, colour = "black"),
-      #legend.title=element_text(size = 24, colour = "black")
     )
 }
 
 #Graphing function - from the summarized data
 plotCummulativeFn = function(data, Yvar, ScaleLabels, title){
-  ggplot(data, aes(x = DistCls, y = Yvar, fill=DistCls)) +
+  ggplot(data, aes(x = distance_class, y = Yvar, fill=distance_class)) +
     scale_fill_manual(values=col_vec) +
     geom_bar(stat="identity") +
     geom_text(label=paste(round(Yvar,2),'%',sep=''),  vjust = -0.25, size=3, alpha=0.8) +
@@ -191,86 +178,82 @@ print(PatchGroup)
 plot(PatchGroup$Npatch, type='l')
 
 #Loop through each strata and generate a png of summary table, map and graphs
-j<-1
-plot_list <- lapply(seq_along(1:3), function(j) {
-    
-  #map of strata - clip raster to strata extent and colour consistent with graphs
-  Strata1<-rbyp_par[[j]]
+plot_list <- imap(rbyp_par, ~ {
+  ## .x is the object itself (the raster), .y is the name
+  print(.y)
   
-  #get the name of the strata for plotting
-  StrataName<-names(rbyp_par_summary[j])
-  
-  #Subset Provincial preprocessed distance map for plotting
-  RdClsdf<-Strata1
-  #Quick check on percent that is un-roaded
-  #tt<-freq(RdClsdf)*areaIN
-  #pSum<-sum(tt[,2])-tt[5,2]
-  #round(tt[3,2]/pSum*100,2)
-  
-#Make a data frame of the strata info
-  xDF<-data.frame(Distance=rbyp_par_summary[[j]],
-            DistCls=cut(rbyp_par_summary[[j]], breaks = DistanceCls, labels=DistLbls),#, right=FALSE, include.lowest=TRUE),
-             AreaHa=areaIN
-            ) 
-
-#Group by Distance Class 
-  xDFGroup<-xDF %>%
-    dplyr::select(DistCls, Distance, AreaHa) %>%
-    group_by(DistCls)  %>%
-    summarise(AreaHa=sum(AreaHa), Distance=sum(Distance))
-#Calculate percent of area in each class 
-  xDFGroup<-mutate(xDFGroup, pcDistCls=AreaHa/sum(AreaHa)*100)
-#Calculate cummulative percent and area  
-  nCases<-length(unique(xDF$DistCls))
-  totArea<-sum(xDFGroup$AreaHa)
-  distCumCls<-NULL
-  areaCumCls<-NULL
-  for (i in 1:nCases) {
-    distCumCls<-c(distCumCls,(sum(xDF$Distance>DistanceCls[i]))/nrow(xDF)*100)
-    areaCumCls<-c(areaCumCls,distCumCls[i]*totArea/100)
-  }
-#Merge all the data into a single data frame.  
-  xDFGroup2<-cbind(xDFGroup,distCumCls,areaCumCls)
+# #Calculate cummulative percent and area  
+#   nCases<-length(unique(xDF$DistCls))
+#   totArea<-sum(xDFGroup$AreaHa)
+#   distCumCls<-NULL
+#   areaCumCls<-NULL
+#   for (i in 1:nCases) {
+#     distCumCls<-c(distCumCls,(sum(xDF$Distance>DistanceCls[i]))/nrow(xDF)*100)
+#     areaCumCls<-c(areaCumCls,distCumCls[i]*totArea/100)
+#   }
+# #Merge all the data into a single data frame.  
+#   xDFGroup2<-cbind(xDFGroup,distCumCls,areaCumCls)
   
 #Create a table object of the data frame
-  tblIN<-data.frame(Distance=xDFGroup2$DistCls, pcDistance=round(xDFGroup2$pcDistCls,2), AreaDistance=round(xDFGroup2$AreaHa,2), pcCumDistance=round(xDFGroup2$distCumCls,2), AreaCumDistance=round(xDFGroup2$areaCumCls,2) )
-  tt <- ttheme_default(colhead=list(fg_params = list(parse=TRUE)), padding=unit(c(1, 1), "mm"))
-  tbl <- tableGrob(format(tblIN,big.mark=","), rows=NULL, theme=tt)
+  # tblIN<-data.frame(Distance=xDFGroup2$DistCls, pcDistance=round(xDFGroup2$pcDistCls,2), AreaDistance=round(xDFGroup2$AreaHa,2), pcCumDistance=round(xDFGroup2$distCumCls,2), AreaCumDistance=round(xDFGroup2$areaCumCls,2) )
+  # tt <- ttheme_default(colhead=list(fg_params = list(parse=TRUE)), padding=unit(c(1, 1), "mm"))
+  # tbl <- tableGrob(format(tblIN,big.mark=","), rows=NULL, theme=tt)
    
 #Call graph function for distance and cummulative distance
-  plotCumm<-plotCummulativeFn(xDFGroup2, xDFGroup2$distCumCls, CumLbls, 'Cumulative Distance Class')
-  plotDist<-plotCummulativeFn(xDFGroup2, xDFGroup2$pcDistCls, DistLbls, 'Distance Class')
+  # plotCumm<-plotCummulativeFn(xDFGroup2, xDFGroup2$distCumCls, CumLbls, 'Cumulative Distance Class')
+  xDFGroup2 <- filter(ecoreg_summary, name == .y)
+  plotDist<-plotCummulativeFn(xDFGroup2, xDFGroup2$percent_in_distance_class, DistLbls, 'Distance Class')
 
 #Map of distances
-  #Set variables for passing to the mapping function
-  nUnique<-length(unique(RdClsdf))
-  Lbl<-DistLbls[1:nUnique]
-  MapCol<-col_vec[1:nUnique]
- 
+
  #Test plot with ice, water, roads
  #col_vec<-c('gray61','lightgreen','forestgreen','darkblue','gray32')
- #plot(RdClsdf)
+ #plot(.x)
  #plot(Water, add=TRUE,col='blue')
  #plot(Ice,add=TRUE,col='gray32')
  #lines(roads_sf,col='red')
  
-  if (StrataName == "Province") {
-    plotMap<-RdClsMap(RdClsdf,Lbl,MapCol, title=StrataName, 
-                      plot_gmap = FALSE, legend = FALSE)
+  if (.y == "Province") {
+    plotMap<-RdClsMap(.x, DistLbls, col_vec, title=.y, 
+                      plot_gmap = FALSE, legend = TRUE, n_classes = 2)
   } else {
-    plotMap<-RdClsMap(RdClsdf,Lbl,MapCol, title=StrataName, 
-                      plot_gmap = TRUE, legend = TRUE)
+    plotMap<-RdClsMap(.x, DistLbls, col_vec, title=.y, 
+                      plot_gmap = FALSE, legend = TRUE, n_classes = 2)
   }
   
-#write Strata to a png: table, map, distance and cummulative graphs
-  # png(file=file.path(figsOutDir,paste0(StrataName,"_Graphs.png")))
-  #    lay <- rbind(c(1,1,2,2), c(1,1,2,2),c(3,3,3,3))
-  #    #Alternatives to grid.arrange patchwork and cowplot
-  #    grid.arrange(plotDist, plotCumm, tbl, layout_matrix=lay,top=names(rbyp_par_summary[j]))
-  #    #+theme(plot.margin=unit(c(1,1,1,1), "cm"))
-  #    dev.off()
-  #  
-    # envreportutils::png_retina(file=file.path(figsOutDir,paste0(StrataName,".png")))
-    plotMap
-    # dev.off()
+    # Save in a list
+    list(map = plotMap, 
+         barchart = plotDist)
+
+}, .id = "name")
+
+walk(plot_list, ~ {
+  plot(.x$map)
+  plot(.x$barchart)
 })
+
+saveRDS(plot_list, file = "tmp/plotlist.rds")
+
+ecoreg_summary <- ecoreg_summary %>% 
+  mutate(
+    map_fname = file.path(figsOutDir, paste0(name, "_map.png")),
+    barchart_fname =  file.path(figsOutDir, paste0(name, "_barchart.png"))
+  )
+
+saveRDS(ecoreg_summary, "out/data/ecoreg_summary.rds")
+
+# save pngs of plots:
+for (n in names(plot_list)) {
+  print(n)
+  barchart <- plot_list[[n]]$barchart
+  map <- plot_list[[n]]$map
+  map_fname <- file.path(figsOutDir, paste0(n, "_map.png"))
+  barchart_fname <- file.path(figsOutDir, paste0(n, "_barchart.png"))
+  png_retina(filename = barchart_fname)
+  plot(barchart)
+  dev.off()
+  png_retina(filename = map_fname)
+  plot(map)
+  dev.off()
+}
+
