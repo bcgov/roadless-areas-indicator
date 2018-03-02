@@ -95,6 +95,39 @@ png_retina(filename = "roadless_figs/roadless_land_barchart.png", width = 500, h
 plot(bar_plot)
 dev.off()
 
+# 2 category bar chart 
+
+colrs2 <- c("Roadless\nLand" = "forestgreen",
+           "Roaded\nLand" = "grey60")
+
+cat2_bar_plot <- CCRM %>% 
+  group_by(Category) %>% 
+  mutate(total_percent=sum(Percent)) %>% 
+  filter(Distance != ">5000") %>% 
+  ungroup() %>% 
+  mutate(Category = recode(Category, "Land with\nRoads" = "Roaded\nLand")) %>% 
+  ggplot(aes(x=Category, y=total_percent)) +
+  geom_col(aes(fill = Category), alpha = 0.7, show.legend=FALSE) +
+  scale_fill_manual(values = colrs2) +
+  theme_soe() +
+  # coord_flip() +
+  labs(x = "", y = "Area (%)") +
+  scale_y_continuous(expand = c(0, 0)) +
+  theme(panel.grid.major.x = element_blank(),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
+        plot.subtitle = element_text(size = 12),
+        plot.margin = unit(c(5, 5, 5, 5), "mm"),
+        legend.title = element_text(size = 16),
+        legend.text = element_text(size = 14),
+        #    legend.position = c(.27,.67),
+        legend.direction = "vertical",
+        legend.background = element_rect(fill = "NA"))
+plot(cat2_bar_plot)
+
+png_retina(filename = "roadless_figs/2cat_barchart.png", width = 500, height = 500, units = "px", type = "cairo-png")
+plot(cat2_bar_plot)
+dev.off()
 
 # Sunburst plots -----------------------------------------------------------------
 
