@@ -192,7 +192,7 @@ strata_barchart <- function(data, labels, colours, n_classes = 3) {
     geom_bar(stat="identity") +
     scale_y_continuous(expand = c(0,0)) +
     coord_flip() + 
-    geom_text(label=paste(round(data$area_ha,2),"Ha"),  hjust = 1.2, size=3, alpha=0.8) +
+    geom_text(label=paste(format(round(data$area_ha), big.mark = ","),"Ha"),  hjust = 1.1, size=3.5) +
     theme_soe() + 
     theme(legend.position="none", 
           panel.grid.major.y = element_blank()) +
