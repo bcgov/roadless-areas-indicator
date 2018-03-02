@@ -1,0 +1,9 @@
+#reset-button {
+  height: 26px; /* easyButton's height default */
+  width: 90px;
+}
+
+.leaflet-popup-content svg text {
+  /* fill: red !important; */
+  /* font-size: 200% !important; */
+}

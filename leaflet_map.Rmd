@@ -1,6 +1,7 @@
 ---
-title: "Roadless lands by ecoregion"
-output: html_document
+output:
+  html_document:
+    css: "test.css"
 ---
 
 ```{r setup, include=FALSE}
@@ -12,6 +13,8 @@ library(dplyr)
 library(rmapshaper)
 library(mapview)
 library(patchwork)
+library(ggplot2)
+library(purrr)
 
 plot_list <- readRDS("tmp/plotlist.rds")
 
@@ -25,7 +28,15 @@ ecoreg <- ecoregions() %>%
 
 plot_list <- plot_list[ecoreg$ECOREGION_NAME]
 
-popupGraph_list <- lapply(plot_list, function(x) x$barchart + x$map)
+popupGraph_list <- imap(plot_list, ~ {
+  .x$barchart + 
+    theme(axis.title = element_text(size = 14), 
+          axis.text = element_text(size = 12)) + 
+    .x$map + 
+    plot_layout(widths = c(1, 1.5)) + 
+    plot_annotation(title = tools::toTitleCase(tolower(.y)), 
+                    theme = theme(title = element_text(size = 18)))
+}) 
 
 labels <- sprintf(
   "<strong>%s</strong>",
@@ -34,9 +45,10 @@ labels <- sprintf(
 ```
 
 
-```{r leaflet map, echo=FALSE}
-leaflet(ecoreg) %>% 
-  setView(lng = -126.5, lat = 54.5, zoom = 5) %>% 
+```{r leaflet-map, echo=FALSE, message=FALSE, warning=FALSE}
+leaflet(ecoreg, width = "900px", height = "550px") %>% 
+  setView(lng = -126.5, lat = 54.5, zoom = 5, 
+          options = list(minZoom = 5)) %>% 
   addProviderTiles("OpenStreetMap.BlackAndWhite") %>% 
   addPolygons(color = "#00441b", fillColor = "#006d2c",
               weight = 1, fillOpacity = 0.2,
@@ -44,6 +56,15 @@ leaflet(ecoreg) %>%
                                                   weight = 2,
                                                   bringToFront = TRUE), 
               label = labels, 
-              popup = popupGraph(popupGraph_list, type = "svg", width = 600, height = 300), 
-              popupOptions = popupOptions(maxWidth = 600))
+              popup = popupGraph(popupGraph_list, type = "svg", width = 800, height = 400), 
+              popupOptions = popupOptions(maxWidth = 800, autoPan = TRUE, 
+                                          keepInView = TRUE, zoomAnimation = FALSE, 
+                                          closeOnClick = TRUE, autoPanPadding = c(50, 50))) %>% 
+  addEasyButton(easyButton(
+     icon = htmltools::span('Reset to B.C.'),
+     onClick = JS("function(btn, map) { 
+                     map.closePopup();
+                     map.setView({lon: -126.5, lat: 54.5}, 5);
+                  }"), 
+     position = "bottomright", id = "reset-button"))
 ```
