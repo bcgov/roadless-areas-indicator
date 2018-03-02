@@ -196,8 +196,8 @@ strata_barchart <- function(data, labels, colours, n_classes = 3) {
   }
   
   ggplot(data, aes(x = distance_class, y = percent_in_distance_class, fill=distance_class)) +
+    geom_bar(stat="identity", alpha = 0.8) +
     scale_fill_manual(values=colours) +
-    geom_bar(stat="identity") +
     scale_y_continuous(expand = c(0,0)) +
     coord_flip() + 
     geom_text(label=paste(format(round(data$area_ha), big.mark = ","),"Ha"),  hjust = 1.1, size=3.5) +
