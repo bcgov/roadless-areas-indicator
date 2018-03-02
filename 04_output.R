@@ -16,6 +16,7 @@ library(gridExtra)
 library(ggplot2)
 library(purrr)
 library(envreportutils)
+library(readr)
 
 #library(dplyr)
 #library(devtools)
@@ -117,7 +118,6 @@ ggmap_strata <- function(strata) {
   loc <- c(e[1] - 2, e[3] - 2, e[2] + 2, e[4] + 2)
   
   get_map(loc, maptype = "satellite")
-  
 }
 
 #Mapping function - removed tile and legend
@@ -178,6 +178,8 @@ plotCummulativeFn = function(data, Yvar, ScaleLabels, title){
   xlab(title) 
 }
 
+# Similar to plotCumulativeFn, but allows to specify if using two or three classes 
+# i.e., roaded/not roaded vs <500, 500-5000, >5000
 strata_barchart <- function(data, labels, colours, n_classes = 3) {
   if (n_classes == 2) {
     data <- data %>% 
@@ -212,7 +214,7 @@ PatchGroup<-read_csv(file.path(dataOutDir,"PatchGroup.csv"))
 print(PatchGroup)
 plot(PatchGroup$Npatch, type='l')
 
-#Loop through each strata and generate a png of summary table, map and graphs
+#Loop through each strata and generate a map and a bar chart
 plot_list <- imap(rbyp_par, ~ {
   ## .x is the object itself (the raster), .y is the name
   print(.y)
@@ -237,7 +239,8 @@ plot_list <- imap(rbyp_par, ~ {
 #Call graph function for distance and cummulative distance
   # plotCumm<-plotCummulativeFn(xDFGroup2, xDFGroup2$distCumCls, CumLbls, 'Cumulative Distance Class')
   xDFGroup2 <- filter(ecoreg_summary, name == .y)
-  plotDist<-plotCummulativeFn(xDFGroup2, xDFGroup2$percent_in_distance_class, DistLbls, 'Distance Class')
+  # plotDist<-plotCummulativeFn(xDFGroup2, xDFGroup2$percent_in_distance_class, DistLbls, 'Distance Class')
+  strata_plot <- strata_barchart(xDFGroup2, colours = col_vec, n_classes = 2)
 
 #Map of distances
 
@@ -248,36 +251,27 @@ plot_list <- imap(rbyp_par, ~ {
  #plot(Ice,add=TRUE,col='gray32')
  #lines(roads_sf,col='red')
  
-  if (.y == "Province") {
-    plotMap<-RdClsMap(.x, DistLbls, col_vec, title=.y, 
-                      plot_gmap = FALSE, legend = TRUE, n_classes = 2)
-  } else {
-    plotMap<-RdClsMap(.x, DistLbls, col_vec, title=.y, 
-                      plot_gmap = FALSE, legend = TRUE, n_classes = 2)
-  }
+  plotMap<-RdClsMap(.x, DistLbls, col_vec, title=.y, 
+                    plot_gmap = FALSE, legend = FALSE, n_classes = 2)
   
-    # Save in a list
-    list(map = plotMap, 
-         barchart = plotDist)
+  # Save in a list
+  list(map = plotMap, 
+       barchart = strata_plot)
 
 }, .id = "name")
 
+# walk loops over a list and executes functions but doesn't return anything to the 
+# environment. Good for plotting
 walk(plot_list, ~ {
   plot(.x$map)
-  # plot(.x$barchart)
+  plot(.x$barchart)
 })
 
+# Save the list of plots and the ecoregion summary 
 saveRDS(plot_list, file = "tmp/plotlist.rds")
+write_csv(ecoreg_summary, "out/data/ecoreg_summary.csv")
 
-ecoreg_summary <- ecoreg_summary %>% 
-  mutate(
-    map_fname = file.path(figsOutDir, paste0(name, "_map.png")),
-    barchart_fname =  file.path(figsOutDir, paste0(name, "_barchart.png"))
-  )
-
-saveRDS(ecoreg_summary, "out/data/ecoreg_summary.rds")
-
-# save pngs of plots:
+#save pngs of plots:
 for (n in names(plot_list)) {
   print(n)
   barchart <- plot_list[[n]]$barchart
