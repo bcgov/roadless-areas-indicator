@@ -10,17 +10,22 @@ library(bcmaps)
 library(sf)
 library(dplyr)
 library(rmapshaper)
+library(mapview)
+library(patchwork)
 
 plot_list <- readRDS("tmp/plotlist.rds")
-
-map_list <- lapply(plot_list, "[[", "map")[-1]
 
 ecoreg <- ecoregions() %>% 
   ms_simplify() %>% 
   st_intersection(bc_bound()) %>% 
   st_transform(4326) %>% 
   group_by(ECOREGION_NAME) %>% 
-  summarize()
+  summarize() %>% 
+  ms_simplify()
+
+plot_list <- plot_list[ecoreg$ECOREGION_NAME]
+
+popupGraph_list <- lapply(plot_list, function(x) x$barchart + x$map)
 
 labels <- sprintf(
   "<strong>%s</strong>",
@@ -39,14 +44,6 @@ leaflet(ecoreg) %>%
                                                   weight = 2,
                                                   bringToFront = TRUE), 
               label = labels, 
-              popup = mapview::popupGraph(map_list, type = "png"))
+              popup = popupGraph(popupGraph_list, type = "svg", width = 600, height = 300), 
+              popupOptions = popupOptions(maxWidth = 600))
 ```
-
-```{r mapview map, echo=FALSE}
-library(mapview)
-mapView(ecoreg, alpha.regions = 0.2, 
-        highlight = highlightOptions(fillOpacity = 0.6,
-                                                  weight = 2,
-                                                  bringToFront = TRUE))
-```
-
