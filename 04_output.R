@@ -15,6 +15,7 @@ library(RColorBrewer)
 library(gridExtra)
 library(ggplot2)
 library(purrr)
+library(envreportutils)
 
 #library(dplyr)
 #library(devtools)
@@ -168,7 +169,21 @@ plotCummulativeFn = function(data, Yvar, ScaleLabels, title){
     theme(axis.text.x = element_text(face="bold", size=6),
           axis.text.y = element_text(face="bold", size=10)) +
   ylab("% Area") +
-  xlab(title) }
+  xlab(title) 
+}
+
+strata_barchart <- function(data, labels, colours, n_classes = 3) {
+  ggplot(data, aes(x = distance_class, y = percent_in_distance_class, fill=distance_class)) +
+    scale_fill_manual(values=colours) +
+    geom_bar(stat="identity") +
+    scale_y_continuous(expand = c(0,0)) +
+    coord_flip() + 
+    geom_text(label=paste(round(data$area_ha,2),"Ha"),  hjust = 1.1, size=3, alpha=0.8) +
+    theme_soe() + 
+    theme(legend.position="none", 
+          panel.grid.major.y = element_blank()) +
+    labs(y = "% Area", x = "Distance to roads (m)")
+}
 
 ###### END of FUNCTIONS
 
@@ -229,7 +244,7 @@ plot_list <- imap(rbyp_par, ~ {
 
 walk(plot_list, ~ {
   plot(.x$map)
-  plot(.x$barchart)
+  # plot(.x$barchart)
 })
 
 saveRDS(plot_list, file = "tmp/plotlist.rds")
