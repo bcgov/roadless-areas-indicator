@@ -173,16 +173,30 @@ plotCummulativeFn = function(data, Yvar, ScaleLabels, title){
 }
 
 strata_barchart <- function(data, labels, colours, n_classes = 3) {
+  if (n_classes == 2) {
+    data <- data %>% 
+      mutate(distance_class = factor(ifelse(distance_class == "0-500", 
+                                             "Roaded", "Not Roaded"))) %>% 
+      group_by(distance_class) %>% 
+      summarize(percent_in_distance_class = sum(percent_in_distance_class), 
+                area_ha = sum(area_ha))
+    
+    colours <- colours[c(3,1)]
+    x_lab <- ""
+  } else {
+    x_lab <- "Distance to roads (m)"
+  }
+  
   ggplot(data, aes(x = distance_class, y = percent_in_distance_class, fill=distance_class)) +
     scale_fill_manual(values=colours) +
     geom_bar(stat="identity") +
     scale_y_continuous(expand = c(0,0)) +
     coord_flip() + 
-    geom_text(label=paste(round(data$area_ha,2),"Ha"),  hjust = 1.1, size=3, alpha=0.8) +
+    geom_text(label=paste(round(data$area_ha,2),"Ha"),  hjust = 1.2, size=3, alpha=0.8) +
     theme_soe() + 
     theme(legend.position="none", 
           panel.grid.major.y = element_blank()) +
-    labs(y = "% Area", x = "Distance to roads (m)")
+    labs(y = "% Area", x = x_lab)
 }
 
 ###### END of FUNCTIONS
