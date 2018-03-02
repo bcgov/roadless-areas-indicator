@@ -87,17 +87,23 @@ rbyp_par<-readRDS(file = "tmp/rbyp_par")
 rbyp_par_summary<-readRDS(file = "tmp/rbyp_par_summary")
 
 ## Make a data frame of ecoregion metrics of distance to roads
+## purrr::map_df is like purrr::map in that it loops over a list/vector,
+## but assumes that each iteration is either a list of the same length,
+## or a data.frame, and at the end combines it all into one data.frame
 ecoreg_summary <- map_df(rbyp_par_summary, ~ {
-  xDF <- data.frame(Distance=.x,
-                  distance_class=cut(.x, breaks = DistanceCls, labels=DistLbls),#, right=FALSE, include.lowest=TRUE),
-                  area_ha=areaIN) 
+  xDF <- data.frame(Distance = .x,
+                    distance_class = cut(.x, breaks = DistanceCls, 
+                                         labels = DistLbls),#, right=FALSE, include.lowest=TRUE),
+                    area_ha = areaIN) 
   
   #Group by Distance Class 
   xDFGroup<-xDF %>%
     dplyr::select(distance_class, area_ha) %>%
     group_by(distance_class)  %>%
     summarise(area_ha=sum(area_ha)) %>% 
-    mutate(percent_in_distance_class = area_ha/sum(area_ha)*100)
+    mutate(percent_in_distance_class = area_ha/sum(area_ha)*100, 
+           roaded_class = factor(ifelse(distance_class == "0-500", 
+                                        "Roaded", "Not Roaded")))
 }, .id = "name")
 
 #clean up the workspace
