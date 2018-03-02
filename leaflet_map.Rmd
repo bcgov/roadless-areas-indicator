@@ -66,5 +66,5 @@ leaflet(ecoreg, width = "900px", height = "550px") %>%
                      map.closePopup();
                      map.setView({lon: -126.5, lat: 54.5}, 5);
                   }"), 
-     position = "bottomright", id = "reset-button"))
+     position = "bottomleft", id = "reset-button"))
 ```
