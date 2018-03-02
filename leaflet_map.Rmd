@@ -11,10 +11,16 @@ library(sf)
 library(dplyr)
 library(rmapshaper)
 
+plot_list <- readRDS("tmp/plotlist.rds")
+
+map_list <- lapply(plot_list, "[[", "map")[-1]
+
 ecoreg <- ecoregions() %>% 
   ms_simplify() %>% 
   st_intersection(bc_bound()) %>% 
-  st_transform(4326)
+  st_transform(4326) %>% 
+  group_by(ECOREGION_NAME) %>% 
+  summarize()
 
 labels <- sprintf(
   "<strong>%s</strong>",
@@ -23,7 +29,7 @@ labels <- sprintf(
 ```
 
 
-```{r map, echo=FALSE}
+```{r leaflet map, echo=FALSE}
 leaflet(ecoreg) %>% 
   setView(lng = -126.5, lat = 54.5, zoom = 5) %>% 
   addProviderTiles("OpenStreetMap.BlackAndWhite") %>% 
@@ -33,10 +39,11 @@ leaflet(ecoreg) %>%
                                                   weight = 2,
                                                   bringToFront = TRUE), 
               label = labels, 
-              popup = "Hi")
+              popup = mapview::popupGraph(map_list, type = "png"))
 ```
 
-```{r}
+```{r mapview map, echo=FALSE}
+library(mapview)
 mapView(ecoreg, alpha.regions = 0.2, 
         highlight = highlightOptions(fillOpacity = 0.6,
                                                   weight = 2,
