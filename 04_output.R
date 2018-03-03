@@ -30,9 +30,10 @@ library(readr)
 #library(igraph)
 
 #Set/Read in provincial map
-roadsSC <- raster(file.path(dataOutDir,"roadsSC.tif"), format="GTiff")
+EcoRegRastS <- raster(file.path(dataOutDir,"EcoRegRast.tif"), format="GTiff")
+ProvRastS <- raster(file.path(dataOutDir,"ProvRast.tif"), format="GTiff")
 #Get ha of each grid cell based on cell size
-areaIN<-res(roadsSC)[1]*res(roadsSC)[2]/10000 #e.g. for 200m grid 4 ha
+areaIN<-res(ProvRastS)[1]*res(ProvRastS)[2]/10000 #e.g. for 200m grid 4 ha
 
 #Read in ice and water for evaluating using them as part of the mapping
 #IceWaterIn <- mask(raster(file.path(DataDir,"IceWater.tif"), format="GTiff"),BCr)
@@ -71,8 +72,8 @@ SrataName <- "ECOREGION_NAME"
 
 ## raster_by_poly with parallelization from Andy Teucher:
 #Generate a list of rasters, one for each strata - Slow for entire Province
-rbyp_par <- raster_by_poly(roadsSC, Strata, SrataName, parallel = TRUE)
-rbyp_par<-c(roadsSC,rbyp_par)
+rbyp_par <- raster_by_poly(EcoRegRastS, Strata, SrataName, parallel = TRUE)
+rbyp_par<-c(ProvRastS,rbyp_par)
 rbyp_par_summary <- summarize_raster_list(rbyp_par)
 names(rbyp_par)[1] <- names(rbyp_par_summary)[1] <- 'Province'
 
@@ -131,24 +132,26 @@ RdClsMap<-function(dat, Lbl, MCol, title="", plot_gmap = FALSE, legend = FALSE, 
   if (plot_gmap) {
     dat <- projectRaster(dat, crs = CRS("+proj=longlat +datum=WGS84"))
     dat_pts <- data.frame(rasterToPoints(dat))
-    dat_pts$roadsSC <- round(dat_pts$roadsSC)
+    names(dat_pts)[names(dat_pts) == setdiff(names(dat_pts), c("x", "y"))] <- "value"
+    dat_pts$value <- round(dat_pts$value)
     gmap <- ggmap_strata(dat)
     gg_start <- ggmap(gmap)
     coords <- coord_cartesian(xlim = range(dat_pts$x), ylim = range(dat_pts$y), expand = TRUE)
   } else {
     dat_pts <- data.frame(rasterToPoints(dat))
+    names(dat_pts)[names(dat_pts) == setdiff(names(dat_pts), c("x", "y"))] <- "value"
     gg_start <- ggplot()
     coords <- coord_fixed()
   }
   
   if (n_classes == 2) {
-    dat_pts$roadsSC[dat_pts$roadsSC == 3] <- 2
+    dat_pts$value[dat_pts$value == 3] <- 2
     Lbl <- c(Lbl[1], ">500m")
     MCol <- MCol[c(1,3)]
   }
   
   gg_start +
-    geom_raster(data = dat_pts, aes(x = x, y = y, fill=factor(roadsSC, labels=Lbl),
+    geom_raster(data = dat_pts, aes(x = x, y = y, fill=factor(value, labels=Lbl),
                                     colour = NULL), alpha=0.8) +
     coords + 
     scale_x_continuous(expand = c(0,0)) + 
