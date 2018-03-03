@@ -200,10 +200,14 @@ strata_barchart <- function(data, labels, colours, n_classes = 3) {
     scale_fill_manual(values=colours) +
     scale_y_continuous(expand = c(0,0)) +
     coord_flip() + 
-    geom_text(label=paste(format(round(data$area_ha), big.mark = ","),"Ha"),  hjust = 1.1, size=3.5) +
+    geom_text(label = paste(format(round(data$area_ha), big.mark = ","),"ha"),  
+              hjust = ifelse(data$area_ha < max(data$area_ha) * 0.8, -0.1, 1.1), 
+              size = 4) +
     theme_soe() + 
     theme(legend.position="none", 
-          panel.grid.major.y = element_blank()) +
+          panel.grid.major.y = element_blank(), 
+          axis.text = element_text(size = 14),
+          axis.title = element_text(size = 16)) +
     labs(y = "% Area", x = x_lab)
 }
 
@@ -263,7 +267,7 @@ plot_list <- imap(rbyp_par, ~ {
 # walk loops over a list and executes functions but doesn't return anything to the 
 # environment. Good for plotting
 walk(plot_list, ~ {
-  plot(.x$map)
+  # plot(.x$map)
   plot(.x$barchart)
 })
 
@@ -278,10 +282,8 @@ for (n in names(plot_list)) {
   map <- plot_list[[n]]$map
   map_fname <- file.path(figsOutDir, paste0(n, "_map.png"))
   barchart_fname <- file.path(figsOutDir, paste0(n, "_barchart.svg"))
-  p <- barchart + theme(axis.text = element_text(size = 14),
-                   axis.title = element_text(size = 16))
   svg_px(file = barchart_fname, width = 500, height = 500)
-  plot(p)
+  plot(barchart)
   dev.off()
   png_retina(filename = map_fname, width = 500, height = 500, units = "px")
   plot(map)
