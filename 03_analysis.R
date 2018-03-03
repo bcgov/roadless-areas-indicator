@@ -24,8 +24,8 @@ patchLbls<-c('0-1000','1000-2000','2000-5,000','5,000-10,000','10,000-50,000','5
 reclPCls<-c(0,500,1,5000,1000000,2)
 
 ### TESTING - aggregate to coarser resolution to increase speed
-roadsS<-aggregate(roadsS, fact=16, fun=mean) #For testing
-BCr<-aggregate(BCr, fact=16, fun=mean)
+# roadsS<-aggregate(roadsS, fact=16, fun=mean) #For testing
+# BCr<-aggregate(BCr, fact=16, fun=mean)
 ###
 
 #Set the timer
@@ -39,6 +39,7 @@ areaIN<-res(roadsS)[1]*res(roadsS)[2]/10000 #e.g. for 200m grid 4 ha
 recl<-matrix(reclCls,ncol=3,byrow=TRUE)
 EcoRegRastS<-reclassify(roadsS, rcl=recl, right=FALSE, include.lowest=TRUE)
 # mask the surface for provincial reporting in 04_output.R
+BCr <- raster(file.path(dataOutDir,"BCr.tif"), format="GTiff")
 ProvRastS<-mask(EcoRegRastS, BCr)
 
 #Save files in tmp directory
