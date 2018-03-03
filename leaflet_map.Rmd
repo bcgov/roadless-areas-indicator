@@ -29,10 +29,7 @@ ecoreg <- ecoregions() %>%
 plot_list <- plot_list[ecoreg$ECOREGION_NAME]
 
 popupGraph_list <- imap(plot_list, ~ {
-  .x$barchart + 
-    theme(axis.title = element_text(size = 14), 
-          axis.text = element_text(size = 12)) + 
-    .x$map + 
+  .x$barchart + .x$map + 
     plot_layout(widths = c(1, 1.5)) + 
     plot_annotation(title = tools::toTitleCase(tolower(.y)), 
                     theme = theme(title = element_text(size = 18)))
