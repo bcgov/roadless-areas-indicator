@@ -18,7 +18,7 @@ library(readr) # load data
 library(ggplot2) # plotting, dev version from GitHub for geom_sf
 library(forcats) # reorder factors
 library(bcmaps) # bc_bound()
-library(envreportutils) # theme_soe()
+library(envreportutils) # theme_soe(), png_retina()
 library(R.utils) # capitalize
 library(foreach) # parallel processing tiles
 library(doMC) # parallel processing tiles
@@ -152,7 +152,7 @@ soe_roads <- roads_clipped %>%
 saveRDS(soe_roads, file = "tmp/soe_roads.rds")
 write_sf(soe_roads, "out/data/soe_roads.gpkg")
 
-# Summary and plots  ------------------------------------------------------------
+# Tabular summary ------------------------------------------------------------
 
 # Load data files from local folders 
 soe_roads <- readRDS("tmp/soe_roads.rds")
@@ -177,9 +177,9 @@ soe_roads_summary <-  soe_roads %>%
 soe_roads_summary
 
 
-# Plotting 
-# Bar chart of roads by surface type
+# Plotting ------------------------------------------------------------
 
+# Bar chart of roads by surface type
 # Colour palette
 colrs <- c("Gravel" = "#fdbf6f",
            "Paved" = "grey10",
@@ -203,61 +203,41 @@ soe_roads_sum_chart <- soe_roads_summary %>%
           plot.margin = unit(c(10, 5, 15, 5), "mm"))
 plot(soe_roads_sum_chart)
 
+# Saving bar plot
 
-# Saving plot
-png_retina(filename = "./out/soe_roads_by_surface.png", width = 500, height = 500, units = "px", type = "cairo-png")
-plot(soe_roads_sum_chart)
-dev.off()
+# PNG
+# png_retina(filename = "./out/soe_roads_by_surface.png", width = 500, height = 500, units = "px", type = "cairo-png")
+# plot(soe_roads_sum_chart)
+# dev.off()
 
+# SVG for the web
 svg_px(file = "./out/soe_roads_by_surface.svg", width = 500, height = 500)
 plot(soe_roads_sum_chart)
 dev.off()
 
-# SoE Roads Map & Bar Chart combined image
-# library(magick) # join bar chart to map png
-# 
-# dra_map_file <- "out/bc_dra.png" # created in QGIS
-# dra_chart_file <- "out/soe_roads_by_surface.png"
-# 
-# (map <- image_read(dra_map_file))
-# (map <- image_resize(map, "1000x1000"))
-# (bar <- image_read(dra_chart_file))
-# images <- c(bar, map)
-# dra_sum <- image_append(images, stack = FALSE)
-# 
-# image_write(dra_sum,
-#             path = "~/dev/bc-road-analysis/out/bc_dra_soe_summary_22Feb18.png",
-#             format = "png")
-
 # Plot of soe_roads map
-# Plotting soe_roads is SLOWWWWW
 
-# plot(st_geometry(soe_roads))
+# colour palette
+colrs2 <- c("L" = "#fdbf6f",
+            "R" = "#fdbf6f",
+           "P" = "grey10",
+           "S" = "#cc4c02",
+           "U" = "#cc4c02")
 
-# soe_roads %>% 
-#   select(TRANSPORT_LINE_SURFACE_CODE) %>% 
-#   plot()
+# Using the ggplot2 dev version for geom_sf
+soe_roads_map <- ggplot() +
+  geom_sf(data = bc_bound(), fill = NA, size = 0.2) +
+    geom_sf(data = soe_roads, aes(colour = TRANSPORT_LINE_SURFACE_CODE), size = 0.1) +
+  coord_sf(datum = NA) +
+  scale_colour_manual(values = colrs2, guide = FALSE) +
+    theme_minimal()
 
-# soe_roads_testing <- soe_roads %>%
-#   filter(TRANSPORT_LINE_SURFACE_CODE == "S")
-
-# ggplot2 dev version
-# soe_roads_map <- ggplot() +
-#   geom_sf(data = bc_bound(), fill = NA, size = 0.2) +
-#     geom_sf(data = soe_roads, aes(colour = TRANSPORT_LINE_SURFACE_CODE), size = 0.1) +
-#   coord_sf(datum = NA) +
-#   scale_colour_manual(values = colrs, guide = FALSE) +
-#     theme_minimal()
+# NOTE: plotting soe_roads is SLOWWWWW
 # plot(soe_roads_map)
 
-# data = soe_roads[1:1000,] ## using small subset for plot iteration
+# Saving map plot (NOTE: takes ~ 28 hours)
+png_retina(filename = "./out/soe_roads_map.png", width = 500, height = 500, units = "px", type = "cairo-png")
+plot(soe_roads_map)
+dev.off()
 
-# X11(type = "cairo")
-# system.time(plot(soe_roads_map))
-
-# Saving map plots
-# png_retina(filename = "./out/soe_roads_map.png", width = 500, height = 500, units = "px", type = "cairo-png")
-# plot(soe_roads_map)
-# dev.off()
-# 
 
