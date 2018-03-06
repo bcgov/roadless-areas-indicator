@@ -15,53 +15,72 @@ library(mapview)
 library(patchwork)
 library(ggplot2)
 library(purrr)
+library(readr)
 
-plot_list <- readRDS("tmp/plotlist.rds")
+ecoreg_summary <- read_csv("out/data/ecoreg_summary.csv") %>% 
+  filter(name != "Province", roaded_class == "Not Roaded") %>% 
+  group_by(name) %>% 
+  summarize(percent_unroaded = sum(percent_in_distance_class), 
+            area_ha = sum(area_ha))
 
 ecoreg <- ecoregions() %>% 
+  filter(!ECOREGION_NAME %in% c("HCS", "IPS", "OPS", "SBC", "TPC")) %>% 
   ms_simplify() %>% 
   st_intersection(bc_bound()) %>% 
   st_transform(4326) %>% 
   group_by(ECOREGION_NAME) %>% 
   summarize() %>% 
-  ms_simplify()
+  ms_simplify() %>% 
+  left_join(ecoreg_summary, by = c("ECOREGION_NAME" = "name"))
 
-plot_list <- plot_list[ecoreg$ECOREGION_NAME]
+# get plot_list with ecoregions in same order as ecoregions in ecoreg
+plot_list <- readRDS("tmp/plotlist.rds")[ecoreg$ECOREGION_NAME]
 
 popupGraph_list <- imap(plot_list, ~ {
-  .x$barchart + .x$map + 
-    plot_layout(widths = c(1, 1.5)) + 
-    plot_annotation(title = tools::toTitleCase(tolower(.y)), 
+  .x$barchart + .x$map +
+    plot_layout(widths = c(1, 1.5)) +
+    plot_annotation(title = tools::toTitleCase(tolower(.y)),
                     theme = theme(title = element_text(size = 18)))
-}) 
-
-labels <- sprintf(
-  "<strong>%s</strong>",
-  tools::toTitleCase(tolower(ecoreg$ECOREGION_NAME))
-) %>% lapply(htmltools::HTML)
+})
 ```
 
 
-```{r leaflet-map, echo=FALSE, message=FALSE, warning=FALSE}
+```{r labels-popups, include=FALSE}
+labels <- sprintf(
+  "<strong>%s (%1.1f%%)</strong>",
+  tools::toTitleCase(tolower(ecoreg$ECOREGION_NAME)), 
+  ecoreg$percent_unroaded
+) %>% lapply(htmltools::HTML)
+
+pal <- colorNumeric(palette = "YlGn", domain = ecoreg$percent_unroaded)
+```
+
+```{r leaflet-map, echo=FALSE}
 leaflet(ecoreg, width = "900px", height = "550px") %>% 
   setView(lng = -126.5, lat = 54.5, zoom = 5, 
           options = list(minZoom = 5)) %>% 
   addProviderTiles("OpenStreetMap.BlackAndWhite") %>% 
-  addPolygons(color = "#00441b", fillColor = "#006d2c",
-              weight = 1, fillOpacity = 0.2,
-              highlightOptions = highlightOptions(fillOpacity = 0.6,
+  addPolygons(color = "#7f7f7f",
+              fillColor = ~pal(percent_unroaded),
+              weight = 1, fillOpacity = 0.6,
+              highlightOptions = highlightOptions(fillOpacity = 0.9,
                                                   weight = 2,
                                                   bringToFront = TRUE), 
-              label = labels, 
-              popup = popupGraph(popupGraph_list, type = "svg", width = 800, height = 400), 
-              popupOptions = popupOptions(maxWidth = 800, autoPan = TRUE, 
-                                          keepInView = TRUE, zoomAnimation = FALSE, 
-                                          closeOnClick = TRUE, autoPanPadding = c(50, 50))) %>% 
+              label = labels,
+              popup = popupGraph(popupGraph_list, type = "svg", width = 700, height = 400),
+              popupOptions = popupOptions(maxWidth = "100%", autoPan = TRUE,
+                                          keepInView = TRUE, zoomAnimation = FALSE,
+                                          closeOnClick = TRUE, autoPanPaddingTopLeft = c(120, 10), 
+                                          autoPanPaddingBottomRight = c(10,10))
+              ) %>% 
+  addLegend(position = "bottomleft", pal = pal, values = ~percent_unroaded, 
+            title = htmltools::HTML("% Area Not<br/>Influenced<br/>by Roads"), 
+            labFormat = labelFormat(suffix = "%", between = "")) %>% 
   addEasyButton(easyButton(
      icon = htmltools::span('Reset to B.C.'),
      onClick = JS("function(btn, map) { 
                      map.closePopup();
                      map.setView({lon: -126.5, lat: 54.5}, 5);
                   }"), 
-     position = "bottomleft", id = "reset-button"))
+     position = "bottomright", id = "reset-button"))
 ```
