@@ -173,7 +173,8 @@ soe_roads_summary <-  soe_roads %>%
                               unknown = "Unknown &\nSeasonal"),
          DESCRIPTION = R.utils::capitalize(DESCRIPTION)) %>% 
   group_by(DESCRIPTION) %>% 
-  summarise(total_length = as.numeric(units::set_units(sum(rd_len), km)))
+  summarise(total_length = as.numeric(units::set_units(sum(rd_len), km))) %>% 
+  mutate(percent_total = (total_length / sum(total_length))*100)
 soe_roads_summary
 
 
