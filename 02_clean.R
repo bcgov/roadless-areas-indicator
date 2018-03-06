@@ -28,9 +28,14 @@ RdTiles=splitRaster(Rd, nx=sqrt(nTiles), ny=sqrt(nTiles), buffer=c(Tilebuf,Tileb
 
 #Use mapply to apply gridDistance over RdTiles
 dT<-mclapply(RdTiles, gridDistance, origin=1, mc.cores = 3)
-roadsS<-mergeRaster(dT)
+dT_merge<-mergeRaster(dT)
 
+#Remove Lakes from road distance surface, need to use raster SetValues 
+roadsS<-setValues(dT_merge,values(roadsS))
+LakesR<-setValues(LakesR,values(LakesR))
+roadsS[LakesR==1]<- NA
 proc.time() - ptm 
+
 gc()
 
 #write out raster for further inspection
