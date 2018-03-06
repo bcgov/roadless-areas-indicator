@@ -1,7 +1,24 @@
 #reset-button {
   height: 26px; /* easyButton's height default */
-  width: 90px;
+  width: 90.7px;
+  /* match background of legend */
+  background: white; /* fallback if rgba doesn't work */
+  background: rgba(255,255,255,0.8);
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  border-radius: 5px;
+  color: #555;
 }
+
+
+.leaflet-bar {
+  box-shadow: none;
+  /* postion reset box right of legend */
+  /*
+  position: relative;
+  left: 100px;
+  */
+}
+
 
 .leaflet-popup-content svg text {
   /* fill: red !important; */

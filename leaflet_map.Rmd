@@ -2,6 +2,8 @@
 output:
   html_document:
     css: "test.css"
+params:
+  add_popups: false
 ---
 
 ```{r setup, include=FALSE}
@@ -33,15 +35,28 @@ ecoreg <- ecoregions() %>%
   ms_simplify() %>% 
   left_join(ecoreg_summary, by = c("ECOREGION_NAME" = "name"))
 
-# get plot_list with ecoregions in same order as ecoregions in ecoreg
-plot_list <- readRDS("tmp/plotlist.rds")[ecoreg$ECOREGION_NAME]
-
-popupGraph_list <- imap(plot_list, ~ {
-  .x$barchart + .x$map +
-    plot_layout(widths = c(1, 1.5)) +
-    plot_annotation(title = tools::toTitleCase(tolower(.y)),
-                    theme = theme(title = element_text(size = 18)))
-})
+if (params$add_popups) {
+  # get plot_list with ecoregions in same order as ecoregions in ecoreg
+  plot_list <- readRDS("tmp/plotlist.rds")[ecoreg$ECOREGION_NAME]
+  
+  popupGraph_list <- imap(plot_list, ~ {
+    .x$barchart + .x$map +
+      plot_layout(widths = c(1, 1.5)) +
+      plot_annotation(title = tools::toTitleCase(tolower(.y)),
+                      theme = theme(title = element_text(size = 18)))
+  })
+  
+  popups <-  popupGraph(popupGraph_list, type = "svg", width = 700,
+                        height = 400)
+  popup_options <-  popupOptions(maxWidth = "100%", autoPan = TRUE,
+                                 keepInView = TRUE,
+                                 zoomAnimation = FALSE,
+                                 closeOnClick = TRUE,
+                                 autoPanPaddingTopLeft = c(120, 10),
+                                 autoPanPaddingBottomRight = c(10,10))
+} else {
+  popups <- popup_options <- NULL
+}
 ```
 
 
@@ -57,9 +72,9 @@ pal <- colorNumeric(palette = "YlGn", domain = ecoreg$percent_unroaded)
 
 ```{r leaflet-map, echo=FALSE}
 leaflet(ecoreg, width = "900px", height = "550px") %>% 
-  setView(lng = -126.5, lat = 54.5, zoom = 5, 
-          options = list(minZoom = 5)) %>% 
-  addProviderTiles("OpenStreetMap.BlackAndWhite") %>% 
+  setView(lng = -126.5, lat = 54.5, zoom = 5) %>% 
+  addProviderTiles("OpenStreetMap.BlackAndWhite", 
+                   options = providerTileOptions(minZoom = 5, maxZoom = 10)) %>% 
   addPolygons(color = "#7f7f7f",
               fillColor = ~pal(percent_unroaded),
               weight = 1, fillOpacity = 0.6,
@@ -68,24 +83,18 @@ leaflet(ecoreg, width = "900px", height = "550px") %>%
                                                   bringToFront = TRUE), 
               label = labels,
               labelOptions = labelOptions(direction = "auto", 
-                                          textsize = "12px"),
-              popup = popupGraph(popupGraph_list, type = "svg", width = 700, 
-                                 height = 400),
-              popupOptions = popupOptions(maxWidth = "100%", autoPan = TRUE,
-                                          keepInView = TRUE, 
-                                          zoomAnimation = FALSE,
-                                          closeOnClick = TRUE, 
-                                          autoPanPaddingTopLeft = c(120, 10), 
-                                          autoPanPaddingBottomRight = c(10,10))
+                                          textsize = "12px"), 
+              popup = popups, 
+              popupOptions = popup_options
               ) %>% 
-  addLegend(position = "bottomleft", pal = pal, values = ~percent_unroaded, 
-            title = htmltools::HTML("% Area Not<br/>Influenced<br/>by Roads"), 
-            labFormat = labelFormat(suffix = "%", between = "")) %>% 
   addEasyButton(easyButton(
      icon = htmltools::span('Reset to B.C.'),
      onClick = JS("function(btn, map) { 
                      map.closePopup();
                      map.setView({lon: -126.5, lat: 54.5}, 5);
                   }"), 
-     position = "bottomleft", id = "reset-button"))
+     position = "bottomleft", id = "reset-button")) %>% 
+  addLegend(position = "bottomleft", pal = pal, values = ~percent_unroaded, 
+            title = htmltools::HTML("% Area Not<br/>Influenced<br/>by Roads"), 
+            labFormat = labelFormat(suffix = "%", between = ""))
 ```
