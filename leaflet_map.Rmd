@@ -67,10 +67,13 @@ leaflet(ecoreg, width = "900px", height = "550px") %>%
                                                   weight = 2,
                                                   bringToFront = TRUE), 
               label = labels,
-              popup = popupGraph(popupGraph_list, type = "svg", width = 700, height = 400),
+              popup = popupGraph(popupGraph_list, type = "svg", width = 700, 
+                                 height = 400),
               popupOptions = popupOptions(maxWidth = "100%", autoPan = TRUE,
-                                          keepInView = TRUE, zoomAnimation = FALSE,
-                                          closeOnClick = TRUE, autoPanPaddingTopLeft = c(120, 10), 
+                                          keepInView = TRUE, 
+                                          zoomAnimation = FALSE,
+                                          closeOnClick = TRUE, 
+                                          autoPanPaddingTopLeft = c(120, 10), 
                                           autoPanPaddingBottomRight = c(10,10))
               ) %>% 
   addLegend(position = "bottomleft", pal = pal, values = ~percent_unroaded, 
