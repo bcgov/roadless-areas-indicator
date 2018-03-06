@@ -1,7 +1,7 @@
 ---
 output:
   html_document:
-    css: "test.css"
+    css: "leaflet_map.css"
 params:
   add_popups: false
 ---
