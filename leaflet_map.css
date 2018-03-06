@@ -9,18 +9,14 @@
   color: #555;
 }
 
-
 .leaflet-bar {
   box-shadow: none;
   /* postion reset box right of legend */
-  /*
   position: relative;
   left: 100px;
-  */
 }
 
-
-.leaflet-popup-content svg text {
-  /* fill: red !important; */
-  /* font-size: 200% !important; */
+/* pull legend down if reset button is pushed right */
+.legend {
+  margin-bottom: -26px !important;
 }

@@ -3,7 +3,7 @@ output:
   html_document:
     css: "leaflet_map.css"
 params:
-  add_popups: false
+  add_popups: true
 ---
 
 ```{r setup, include=FALSE}
