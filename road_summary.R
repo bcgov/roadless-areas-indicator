@@ -61,52 +61,53 @@ summary(roads_sf)
 saveRDS(roads_sf, file = "tmp/DRA_roads_sf.rds")
 
 
-# # clip to bc boundary -----------------------------------------------------
-# 
-# bc <- bc_bound_hres()
-# 
-# # Make a 10x10 grid of tiles to chunk out processing into smaller pieces
-# prov_grid <- st_make_grid(bc, n = c(10, 10))
-# prov_grid <- st_sf(tile_id = seq_along(prov_grid), geometry = prov_grid)
-# 
-# # Chop the bc boundary up into tiles using prov_grid
-# bc_gridded <- st_intersection(st_cast(bc, "POLYGON"), prov_grid) %>% 
-#   mutate(grid_area = as.numeric(st_area(.)))
-# 
-# # Get the edge grids - those with an area less than a full square (with a 10m2 tolerance)
-# edge_grids <- unique(bc_gridded$tile_id[bc_gridded$grid_area < (round(max(bc_gridded$grid_area)) - 10)])
-# 
-# # Plot just bc_bound edge grids to check
-# plot(bc_gridded[bc_gridded$tile_id %in% edge_grids, "grid_area"])
-# 
-# # Chop the roads up by the same 10x10 tile grid. This takes a while
-# roads_gridded <- st_intersection(roads_sf, prov_grid)
-# 
-# # Split into two data frames - those grids on the edge and those in the interior.
-# interior_roads <- roads_gridded[!roads_gridded$tile_id %in% edge_grids, ]
-# edge_roads <- roads_gridded[roads_gridded$tile_id %in% edge_grids, ]
-# 
-# # Map over only edge tiles and intersect roads with prov boundary in parallel
-# registerDoMC(3)
-# edge_roads_clipped_list <- foreach(id = edge_grids) %dopar% {
-#   st_intersection(edge_roads[edge_roads$tile_id == id, ], 
-#                   st_geometry(bc_gridded[bc_gridded$tile_id == id, ]))
-# }
-# 
-# # Recombine list of tiles into one sf object
-# edge_roads_clipped <- do.call("rbind", edge_roads_clipped_list)
-# 
-# # Combine clipped edge roads with interior and recalculate lenghts
-# roads_clipped <- rbind(interior_roads, edge_roads_clipped) %>% 
-#   mutate(rd_len = st_length(.))
-# 
-# # Remove intermediate objects
-# rm(edge_roads, edge_roads_clipped, edge_roads_clipped_list, interior_roads, roads_gridded)
-# 
-# # Save roads_clipped sf object to RDS & write out as geopackage format 
-# # for use in other software
-# saveRDS(roads_clipped, file = "tmp/roads_clipped.rds")
-# write_sf(roads_clipped, "out/data/roads_clipped.gpkg")
+# clip to bc boundary -----------------------------------------------------
+# Note: this takes a couple of hours
+
+bc <- bc_bound_hres()
+
+# Make a 10x10 grid of tiles to chunk out processing into smaller pieces
+prov_grid <- st_make_grid(bc, n = c(10, 10))
+prov_grid <- st_sf(tile_id = seq_along(prov_grid), geometry = prov_grid)
+
+# Chop the bc boundary up into tiles using prov_grid
+bc_gridded <- st_intersection(st_cast(bc, "POLYGON"), prov_grid) %>%
+  mutate(grid_area = as.numeric(st_area(.)))
+
+# Get the edge grids - those with an area less than a full square (with a 10m2 tolerance)
+edge_grids <- unique(bc_gridded$tile_id[bc_gridded$grid_area < (round(max(bc_gridded$grid_area)) - 10)])
+
+# Plot just bc_bound edge grids to check
+plot(bc_gridded[bc_gridded$tile_id %in% edge_grids, "grid_area"])
+
+# Chop the roads up by the same 10x10 tile grid. This takes a while
+roads_gridded <- st_intersection(roads_sf, prov_grid)
+
+# Split into two data frames - those grids on the edge and those in the interior.
+interior_roads <- roads_gridded[!roads_gridded$tile_id %in% edge_grids, ]
+edge_roads <- roads_gridded[roads_gridded$tile_id %in% edge_grids, ]
+
+# Map over only edge tiles and intersect roads with prov boundary in parallel
+registerDoMC(3)
+edge_roads_clipped_list <- foreach(id = edge_grids) %dopar% {
+  st_intersection(edge_roads[edge_roads$tile_id == id, ],
+                  st_geometry(bc_gridded[bc_gridded$tile_id == id, ]))
+}
+
+# Recombine list of tiles into one sf object
+edge_roads_clipped <- do.call("rbind", edge_roads_clipped_list)
+
+# Combine clipped edge roads with interior and recalculate lenghts
+roads_clipped <- rbind(interior_roads, edge_roads_clipped) %>%
+  mutate(rd_len = st_length(.))
+
+# Remove intermediate objects
+rm(edge_roads, edge_roads_clipped, edge_roads_clipped_list, interior_roads, roads_gridded)
+
+# Save roads_clipped sf object to RDS & write out as geopackage format
+# for use in other software
+saveRDS(roads_clipped, file = "tmp/roads_clipped.rds")
+write_sf(roads_clipped, "out/data/roads_clipped.gpkg")
 
 # Tabular Summaries --------------------------------------------------------
 
