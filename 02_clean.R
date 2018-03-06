@@ -30,10 +30,11 @@ RdTiles=splitRaster(Rd, nx=sqrt(nTiles), ny=sqrt(nTiles), buffer=c(Tilebuf,Tileb
 dT<-mclapply(RdTiles, gridDistance, origin=1, mc.cores = 3)
 dT_merge<-mergeRaster(dT)
 
-#Remove Lakes from road distance surface, need to use raster SetValues 
+#Remove Lakes from road distance surface, need to use raster SetValues to work properly
 roadsS<-setValues(dT_merge,values(roadsS))
 LakesR<-setValues(LakesR,values(LakesR))
 roadsS[LakesR==1]<- NA
+
 proc.time() - ptm 
 
 gc()
