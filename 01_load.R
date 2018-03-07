@@ -44,17 +44,45 @@ if (!file.exists(LakesR_file)) {
   # List feature classes in the geodatabase
   BTM_gdb <- list.files(file.path(DataDir, "Lakes"), pattern = ".gdb", full.names = TRUE)[1]
   fc_list <- st_layers(BTM_gdb)
-  
-  # Read as sf and flip to spatial to rasterize
   BTM <- as(read_sf(BTM_gdb, layer = "WHSE_BASEMAPPING_BTM_PRESENT_LAND_USE_V1_SVW"),'Spatial')
-  # Pull out lakes
+
+  # Subset out lakes
   Lakes<-subset(BTM,BTM@data$PRESENT_LAND_USE_LABEL=='Fresh Water')
-  # Rasterize lakes and set to a binary 
-  LakesR<-(rasterize(Lakes,ProvRast))>0
-  # Write out raster
+  
+  # Using gdal to rasterize - raster::rasterize does not handle islands in lakes 
+  library(rgdal)
+  library(gdalUtils)
+  
+  # write out a Lakes shapefile for gdal_rasterize - requires a shape file and 
+  # attribute field to populate the raster
+  Lakes@data$water<-1
+  writeOGR(Lakes, file.path(dataOutDir,"Lakes.shp"), "Lakes",driver="ESRI Shapefile", overwrite=TRUE) 
+  
+  # Make and write out a blank (0) lakes raster to be populated by gdal_rasterize
+  LakesR<-raster(nrows=15744, ncols=17216, xmn=159587.5, xmx=1881187.5, ymn=173787.5,ymx=1748187.5,
+                    crs="+proj=aea +lat_1=50 +lat_2=58.5 +lat_0=45 +lon_0=-126 +x_0=1000000 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0",
+                    res=c(100,100),vals=0)
   writeRaster(LakesR, filename=file.path(dataOutDir,"LakesR.tif"), format="GTiff", overwrite=TRUE)
-  } else {
+  
+  # gdal_rasterize requires the raster extents
+  extLR<-extent(LakesR)
+
+  # gdal_rasterize has some perculiar requirments - requires a shapefile and raster on disk
+  LakesR <- (gdal_rasterize(file.path(dataOutDir,"Lakes.shp"), file.path(dataOutDir,"LakesR.tif"),
+                             # extents for output raster
+                             te = c(extLR[1], extLR[3], extLR[2], extLR[4]), 
+                             # resolution for x and y
+                             tr = res(LakesR),   
+                             # target aligned pixels - align coords of extent of output to values of tr
+                             tap = TRUE,
+                             # attribute field for raster 'burn' and value for nodata
+                             a="water", a_nodata = NA, 
+                             # layer for burn (shapefile)
+                             l="Lakes",
+                             # return the raster to the R enviornment
+                             output_Raster=TRUE,
+                             # verbose and a 'raster brick' is returned but only has 1 layer which is selected
+                             verbose=TRUE))[[1]]
+   } else {
   LakesR <- raster(LakesR_file)
 }
-
-
