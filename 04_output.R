@@ -52,7 +52,7 @@ col_vec<-c('gray61','lightgreen','forestgreen')
 
 # Prepare ecoregions by removing marine then intersecting with bc boundary 
 Strata <- bcmaps::ecoregions() %>% # from bcmaps
-  filter(!ECOREGION_NAME %in% c("HCS", "IPS", "OPS", "SBC", "TPC"))
+  filter(!ECOREGION_CODE %in% c("HCS", "IPS", "OPS", "SBC", "TPC"))
   st_intersection(bc_bound_hres()) %>% 
   as("Spatial")
 
