@@ -19,8 +19,8 @@ nTiles<-100
 Tilebuf<-100
 
 #set RoadDensP as a binary road/no-road
-#RoadDensP100<-raster(file.path(dataOutDir,"RoadDensP100.tif"))
-Rd<-RoadDensP100>0
+RoadDensP100<-raster(file.path(dataOutDir,"RoadDensP100.tif"))
+Rd <- RoadDensP100 > 0
 
 ptm <- proc.time()
 #To remove edge effects a 100 (5000/5km) cell buffer is used
@@ -30,10 +30,8 @@ RdTiles=splitRaster(Rd, nx=sqrt(nTiles), ny=sqrt(nTiles), buffer=c(Tilebuf,Tileb
 dT<-mclapply(RdTiles, gridDistance, origin=1, mc.cores = 3)
 dT_merge<-mergeRaster(dT)
 
-#Remove Lakes from road distance surface, need to use raster SetValues to work properly
+# need to use raster SetValues to work properly
 roadsS<-setValues(dT_merge,values(dT_merge))
-LakesR<-setValues(LakesR,values(LakesR))
-roadsS[LakesR==1]<- NA
 
 proc.time() - ptm 
 
