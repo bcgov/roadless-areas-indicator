@@ -160,6 +160,11 @@ soe_roads <- readRDS("tmp/soe_roads.rds")
 road_types <- read_csv("data/TRANSPORT_LINE_TYPE_CODE.csv")
 road_surfaces <- read_csv("data/TRANSPORT_LINE_SURFACE_CODE.csv")
 
+# Sum of SOE road segment lengths
+soe_total_length_roads <- units::set_units(sum(soe_roads$rd_len), km) %>% 
+  round(digits = 0) %>% 
+  scales::comma()
+
 # Summarize road lengths by type, collapsing types into broad categories (paved, gravel, unknown & seasonal)
 # These categories were adapted the Forest Practices Board report Special Report #49
 # https://www.bcfpb.ca/wp-content/uploads/2017/05/SR49-Access-Management.pdf
@@ -178,14 +183,15 @@ soe_roads_summary <-  soe_roads %>%
   mutate(percent_total = (total_length / sum(total_length))*100)
 soe_roads_summary
 
+write_csv(soe_roads_summary, "out/soe_roads_by_type_summary.csv")
 
 # Plotting ------------------------------------------------------------
 
 # Bar chart of roads by surface type
 # Colour palette
-colrs <- c("Gravel" = "#fdbf6f",
-           "Paved" = "grey10",
-           "Unknown &\nSeasonal" = "#cc4c02")
+colrs <- c("Gravel" = "#993404",
+           "Paved" = "#000000",
+           "Unknown &\nSeasonal" = "#fec44f")
 
 soe_roads_sum_chart <- soe_roads_summary %>% 
   ggplot(aes(fct_reorder(DESCRIPTION, total_length), total_length/1000)) +
@@ -220,11 +226,11 @@ dev.off()
 # Plot of soe_roads map
 
 # colour palette
-colrs2 <- c("L" = "#fdbf6f",
-            "R" = "#fdbf6f",
-           "P" = "grey10",
-           "S" = "#cc4c02",
-           "U" = "#cc4c02")
+colrs2 <- c("L" = "#993404",
+            "R" = "#993404",
+           "P" = "#000000",
+           "S" = "#fec44f",
+           "U" = "#fec44f")
 
 # Using the ggplot2 dev version for geom_sf
 soe_roads_map <- ggplot() +
