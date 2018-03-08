@@ -11,23 +11,11 @@
 # See the License for the specific language governing permissions and limitations under the License.
 
 source("header.R")
-library(RColorBrewer)
-library(gridExtra)
+
 library(ggplot2)
 library(purrr)
 library(envreportutils)
-library(readr)
-
-#library(dplyr)
-#library(devtools)
-#library(tidyverse)
-#library(rgdal)
-#library(gapminder)
-#library(pryr)
-#library(grid)
-#library(gridGraphics)
-#library(rasterVis)
-#library(igraph)
+library(rasterVis)
 
 #Set/Read in provincial map
 EcoRegRastS <- raster(file.path(dataOutDir,"EcoRegRast.tif"), format="GTiff")
@@ -124,41 +112,40 @@ ggmap_strata <- function(strata) {
 }
 
 #Mapping function - removed tile and legend
-RdClsMap<-function(dat, Lbl, MCol, title="", plot_gmap = FALSE, legend = FALSE, n_classes = 3){
+RdClsMap<-function(dat, Lbl, MCol, title="", plot_gmap = FALSE, legend = FALSE, 
+                   n_classes = 3, max_px = 1000000) {
 
   # dat_poly <- spTransform(dat_poly, "+init=epsg:4326")
   # dat_poly@data$id <- 1:nrow(dat_poly@data)
   # dat_df <- fortify(dat_poly)
   # dat_df <- merge(dat_df, dat_poly@data, by.x = "id", by.y = "id")
   
-  if (plot_gmap) {
-    dat <- projectRaster(dat, crs = CRS("+proj=longlat +datum=WGS84"))
-    dat_pts <- data.frame(rasterToPoints(dat))
-    names(dat_pts)[names(dat_pts) == setdiff(names(dat_pts), c("x", "y"))] <- "value"
-    dat_pts$value <- round(dat_pts$value)
-    gmap <- ggmap_strata(dat)
-    gg_start <- ggmap(gmap)
-    coords <- coord_cartesian(xlim = range(dat_pts$x), ylim = range(dat_pts$y), expand = TRUE)
-  } else {
-    dat_pts <- data.frame(rasterToPoints(dat))
-    names(dat_pts)[names(dat_pts) == setdiff(names(dat_pts), c("x", "y"))] <- "value"
-    gg_start <- ggplot()
-    coords <- coord_fixed()
-  }
-  
   if (n_classes == 2) {
-    dat_pts$value[dat_pts$value == 3] <- 2
+    dat[dat == 3] <- 2
     Lbl <- c(Lbl[1], ">500m")
     MCol <- MCol[c(1,3)]
   }
   
+  if (plot_gmap) {
+    dat <- projectRaster(dat, crs = CRS("+proj=longlat +datum=WGS84"))
+    gmap <- ggmap_strata(dat)
+    gg_start <- ggmap(gmap) + rasterVis::gplot(dat, maxpixels = max_px)
+    ext <- extent(dat)
+    coords <- coord_cartesian(xlim = c(ext@xmin, ext@xmax), 
+                              ylim = c(ext@ymin, ext@ymax), 
+                              expand = TRUE)
+  } else {
+    coords <- coord_fixed()
+    gg_start <- rasterVis::gplot(dat, maxpixels = max_px)
+  }
+  
   gg_start +
-    geom_raster(data = dat_pts, aes(x = x, y = y, fill=factor(value, labels=Lbl),
+    geom_raster(aes(fill=factor(value),
                                     colour = NULL), alpha=0.8) +
     coords + 
     scale_x_continuous(expand = c(0,0)) + 
     scale_y_continuous(expand = c(0,0)) +
-    scale_fill_manual(values= MCol) +
+    scale_fill_manual(labels = Lbl, values = MCol) +
     labs(fill = "Distance to Roads") + 
     theme_minimal() + 
     theme(
@@ -199,6 +186,8 @@ strata_barchart <- function(data, labels, colours, n_classes = 3) {
   } else {
     x_lab <- "Distance to roads (m)"
   }
+  
+  
   
   ggplot(data, aes(x = distance_class, y = percent_in_distance_class, fill=distance_class)) +
     geom_bar(stat="identity", alpha = 0.8) +
@@ -272,7 +261,7 @@ plot_list <- imap(rbyp_par, ~ {
 # walk loops over a list and executes functions but doesn't return anything to the 
 # environment. Good for plotting
 walk(plot_list, ~ {
-  # plot(.x$map)
+  plot(.x$map)
   plot(.x$barchart)
 })
 
@@ -281,12 +270,14 @@ saveRDS(plot_list, file = "tmp/plotlist.rds")
 write_csv(ecoreg_summary, "out/data/ecoreg_summary.csv")
 
 #save pngs of plots:
+
+plot_list <- readRDS("tmp/plotlist.rds")
 for (n in names(plot_list)) {
   print(n)
   barchart <- plot_list[[n]]$barchart
+  barchart_fname <- file.path(figsOutDir, paste0(n, "_barchart.svg"))
   map <- plot_list[[n]]$map
   map_fname <- file.path(figsOutDir, paste0(n, "_map.png"))
-  barchart_fname <- file.path(figsOutDir, paste0(n, "_barchart.svg"))
   svg_px(file = barchart_fname, width = 500, height = 500)
   plot(barchart)
   dev.off()
@@ -294,4 +285,4 @@ for (n in names(plot_list)) {
   plot(map)
   dev.off()
 }
-
+ß
