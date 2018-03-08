@@ -31,7 +31,7 @@ dT<-mclapply(RdTiles, gridDistance, origin=1, mc.cores = 3)
 dT_merge<-mergeRaster(dT)
 
 #Remove Lakes from road distance surface, need to use raster SetValues to work properly
-roadsS<-setValues(dT_merge,values(roadsS))
+roadsS<-setValues(dT_merge,values(dT_merge))
 LakesR<-setValues(LakesR,values(LakesR))
 roadsS[LakesR==1]<- NA
 
