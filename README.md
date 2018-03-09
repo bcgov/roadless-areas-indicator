@@ -1,12 +1,12 @@
 <div id="devex-badge"><a rel="Exploration" href="https://github.com/BCDevExchange/assets/blob/master/README.md"><img alt="Being designed and built, but in the lab. May change, disappear, or be buggy." style="border-width:0" src="https://assets.bcdevexchange.org/images/badges/exploration.svg" title="Being designed and built, but in the lab. May change, disappear, or be buggy." /></a></div>
 
-# Intact Lands in B.C. Indicator
+# Roads & Areas Not Influenced by Roads in B.C.
 
-This repository contains R code that calculates and summarizes the amount of intact land in B.C. It supports a 'Land' indicator under development for [Environmental Reporting BC](http://www2.gov.bc.ca/gov/content?id=FF80E0B985F245CEA62808414D78C41B).
+This repository contains R code that determines and summarizes the roadless areas in B.C. It supports the 'Roads & Areas Not Influenced by Roads' indicator published on [Environmental Reporting BC](http://www2.gov.bc.ca/gov/content?id=FF80E0B985F245CEA62808414D78C41B).
 
 ## Getting Help or Reporting an Issue
 
-To report bugs/issues/feature requests, please file an [issue](https://github.com/bcgov-c/intact-lands-indicator/issues/).
+To report bugs/issues/feature requests, please file an [issue](https://github.com/bcgov-c/roadless-areas-indicator/issues/).
 
 ## How to Contribute
 
