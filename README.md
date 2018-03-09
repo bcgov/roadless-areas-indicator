@@ -2,7 +2,44 @@
 
 # Roads & Areas Not Influenced by Roads in B.C.
 
-This repository contains R code that determines and summarizes the roadless areas in B.C. It supports the 'Roads & Areas Not Influenced by Roads' indicator published on [Environmental Reporting BC](http://www2.gov.bc.ca/gov/content?id=FF80E0B985F245CEA62808414D78C41B).
+This repository contains R code that summarizes the length of roads and amount of roadless areas in B.C. It supports the 'Roads & Areas Not Influenced by Roads' indicator published on [Environmental Reporting BC](http://www2.gov.bc.ca/gov/content?id=FF80E0B985F245CEA62808414D78C41B).
+
+### Data
+
+This analysis uses the British Columbia [Digital Road Atlas available from the B.C. Data Catalogue]((https://catalogue.data.gov.bc.ca/dataset/bb060417-b6e6-4548-b837-f9060d94743e)) and distributed under the [Access Only - B.C. Crown Copyright](https://www2.gov.bc.ca/gov/content?id=1AAACC9C65754E4D89A118B875E0FBDA) licence. The Digital Road Atlas is a [single, authoritative source of road data for the Province of B.C.](https://www2.gov.bc.ca/gov/content?id=21FFEC94B0AD40818D2D2AF06D522714) Metadata details for the Digital Road Atlas (DRA) are available in PDF format from the [B.C. Data Catalogue](https://catalogue.data.gov.bc.ca/dataset/bb060417-b6e6-4548-b837-f9060d94743e).
+
+The analyses exclude some surface and road types in the [Digital Road Atlas](https://catalogue.data.gov.bc.ca/dataset/bb060417-b6e6-4548-b837-f9060d94743e). Boat (B), overgrown (O) & decomissioned (D) roads are excluded from `TRANSPORT_LINE_SURFACE_CODE` and ferry routes (F, FP, FR, RWA), non-motorized trails (T, TD), road proposed (RP), and road pedestrian mall (RPM) are excluded from `TRANSPORT_LINE_TYPE_CODE`.
+
+The road length analysis sources the [Digital Road Atlas](https://catalogue.data.gov.bc.ca/dataset/bb060417-b6e6-4548-b837-f9060d94743e) from the B.C. Data Catalogue. The roadless areas analysis is based on [rasterized input data](https://en.wikipedia.org/wiki/Raster_data), generated with [R](https://www.r-project.org/) code that is also available in [GitHub](https://github.com/bcgov/bc-raster-roads).
+
+### Usage
+
+#### Road Length Analysis
+
+One script is reqired for the road length by road type analysis:
+
+- road_summary.R
+
+An installation of [GDAL](http://www.gdal.org/) is required for the `ogr2ogr` command in the  road_summary.R file. Most packages used in the road length analysis can be installed from CRAN using `install.packages()`, but you will need to install [`envreportutils`](https://github.com/bcgov/envreportutils) and [`patchwork`](https://github.com/thomasp85/patchwork) using devtools:
+
+```r
+install.packages("devtools") # if you don't already have it installed
+
+library(devtools)
+install_github("bcgov/envreportutils")
+install_github("thomasp85/patchwork")
+```
+
+#### Roadless Areas Analysis
+
+There are four core scripts that are required for the roadless areas analysis, they need to be run in order:
+
+-   01\_load.R
+-   02\_clean.R
+-   03\_analysis.R
+-   04\_output.R
+
+All of the packages used in the analysis can be installed from CRAN using `install.packages()`. 
 
 ## Getting Help or Reporting an Issue
 
