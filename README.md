@@ -16,19 +16,9 @@ The road length analysis sources the [Digital Road Atlas](https://catalogue.data
 
 #### Road Length Analysis
 
-One script is reqired for the road length by road type analysis:
+One script is required for the road length and road lnegth by road type analysis:
 
 - road_summary.R
-
-An installation of [GDAL](http://www.gdal.org/) is required for the `ogr2ogr` command in the  road_summary.R file. Most packages used in the road length analysis can be installed from CRAN using `install.packages()`, but you will need to install [`envreportutils`](https://github.com/bcgov/envreportutils) and [`patchwork`](https://github.com/thomasp85/patchwork) using devtools:
-
-```r
-install.packages("devtools") # if you don't already have it installed
-
-library(devtools)
-install_github("bcgov/envreportutils")
-install_github("thomasp85/patchwork")
-```
 
 #### Roadless Areas Analysis
 
@@ -39,7 +29,15 @@ There are four core scripts that are required for the roadless areas analysis, t
 -   03\_analysis.R
 -   04\_output.R
 
-All of the packages used in the analysis can be installed from CRAN using `install.packages()`. 
+An installation of [GDAL](http://www.gdal.org/) is required for the `ogr2ogr` command in the  road_summary.R file. Most packages used in the analyses can be installed from CRAN using `install.packages()`, but you will need to install [`envreportutils`](https://github.com/bcgov/envreportutils) and [`patchwork`](https://github.com/thomasp85/patchwork) using devtools:
+
+```r
+install.packages("devtools") # if you don't already have it installed
+
+library(devtools)
+install_github("bcgov/envreportutils")
+install_github("thomasp85/patchwork")
+```
 
 ## Getting Help or Reporting an Issue
 
