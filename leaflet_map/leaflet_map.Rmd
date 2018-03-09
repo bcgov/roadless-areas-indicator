@@ -5,6 +5,24 @@ output:
 params:
   add_popups: true
 ---
+<!-- 
+Copyright 2018 Province of British Columbia
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on  "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and limitations under the License.
+-->
+
+<!-- 
+To speed up development of appearance of the map, change `add_popups` 
+paremeter to `false` so that popups aren't rendered (which takes a long time) 
+-->
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -18,8 +36,9 @@ library(patchwork)
 library(ggplot2)
 library(purrr)
 library(readr)
+library(here)
 
-ecoreg_summary <- read_csv("out/data/ecoreg_summary.csv") %>% 
+ecoreg_summary <- read_csv(here("out/data/ecoreg_summary.csv")) %>% 
   filter(name != "Province", roaded_class == "Not Roaded") %>% 
   group_by(name) %>% 
   summarize(percent_unroaded = sum(percent_in_distance_class), 
@@ -37,7 +56,7 @@ ecoreg <- ecoregions() %>%
 
 if (params$add_popups) {
   # get plot_list with ecoregions in same order as ecoregions in ecoreg
-  plot_list <- readRDS("tmp/plotlist.rds")[ecoreg$ECOREGION_NAME]
+  plot_list <- readRDS(here("tmp/plotlist.rds"))[ecoreg$ECOREGION_NAME]
   
   popupGraph_list <- imap(plot_list, ~ {
     .x$barchart + .x$map +
