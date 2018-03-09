@@ -26,7 +26,7 @@ ecoreg_summary <- read_csv("out/data/ecoreg_summary.csv") %>%
             area_ha = sum(area_ha))
 
 ecoreg <- ecoregions() %>% 
-  filter(!ECOREGION_NAME %in% c("HCS", "IPS", "OPS", "SBC", "TPC")) %>% 
+  filter(!ECOREGION_CODE %in% c("HCS", "IPS", "OPS", "SBC", "TPC")) %>% 
   ms_simplify() %>% 
   st_intersection(bc_bound()) %>% 
   st_transform(4326) %>% 
