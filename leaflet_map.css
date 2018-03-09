@@ -9,7 +9,7 @@
   color: #555;
 }
 
-.leaflet-bar {
+.easy-button-container {
   box-shadow: none;
   /* postion reset box right of legend */
   position: relative;
