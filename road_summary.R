@@ -62,7 +62,7 @@ saveRDS(roads_sf, file = "tmp/DRA_roads_sf.rds")
 
 
 # clip to bc boundary -----------------------------------------------------
-# Note: this takes a couple of hours
+# Note: this chunk takes a 3-4 of hours to run
 
 bc <- bc_bound_hres()
 
@@ -243,7 +243,7 @@ soe_roads_map <- ggplot() +
 # NOTE: plotting soe_roads is SLOWWWWW
 # plot(soe_roads_map)
 
-# Saving map plot (NOTE: takes ~ 28 hours)
+# Saving map plot (NOTE: takes ~ 27-28 hours)
 png_retina(filename = "./out/soe_roads_map.png", width = 500, height = 500, units = "px", type = "cairo-png")
 plot(soe_roads_map)
 dev.off()
