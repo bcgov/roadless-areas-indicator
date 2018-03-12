@@ -169,7 +169,7 @@ RdClsMap<-function(dat, Lbl, MCol, title="", plot_gmap = FALSE, legend = FALSE,
   
   gg_start +
     geom_raster(aes(fill=factor(value),
-                                    colour = NULL), alpha=0.8) +
+                    colour = NULL), alpha=0.8) +
     coords + 
     scale_x_continuous(expand = c(0,0)) + 
     scale_y_continuous(expand = c(0,0)) +
@@ -298,8 +298,6 @@ saveRDS(plot_list, file = "tmp/plotlist.rds")
 write_csv(ecoreg_summary, "out/data/ecoreg_summary.csv")
 
 #save pngs of plots:
-
-plot_list <- readRDS("tmp/plotlist.rds")
 for (n in names(plot_list)) {
   print(n)
   barchart <- plot_list[[n]]$barchart
