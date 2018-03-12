@@ -43,10 +43,12 @@ SrataName <- "ECOREGION_NAME"
 ## raster_by_poly with parallelization from Andy Teucher:
 # Generate a list of rasters, one for each strata, put Province at front of list
 rbyp_par <- raster_by_poly(EcoRegRastS, Strata, SrataName, parallel = TRUE)
+## Add the province to the list and name it
 rbyp_par<-c(ProvRastS,rbyp_par)
-rbyp_par_summary <- summarize_raster_list(rbyp_par)
-names(rbyp_par)[1] <- names(rbyp_par_summary)[1] <- 'Province'
+names(rbyp_par)[1] <- 'Province'
 
+# Generate summary of the province and each ecoregion
+rbyp_par_summary <- summarize_raster_list(rbyp_par)
 
 # Check if there is data in strata, if none then drop strata from list
 rbyp_par<-rbyp_par[lapply(rbyp_par_summary,length)>0]
@@ -78,6 +80,32 @@ ecoreg_summary <- map_df(rbyp_par_summary, ~ {
 
 #clean up the workspace
 gc()
+
+#summary of results
+
+bc_area_summary <- ecoreg_summary %>% 
+  filter(name == "Province") %>% 
+  group_by(name, roaded_class) %>% 
+  mutate(total_area=sum(area_ha),
+         total_perc=sum(percent_in_distance_class)) %>% 
+  filter(distance_class != ">5000") %>% 
+  mutate(distance_class = recode(distance_class, "500-5000" = ">500")) %>% 
+  ungroup() %>% 
+  dplyr::select(-area_ha, -percent_in_distance_class) 
+bc_area_summary
+
+
+ecoregion_area_summary <- ecoreg_summary %>% 
+  filter(name != "Province") %>% 
+  group_by(name, roaded_class) %>% 
+  mutate(total_area=sum(area_ha),
+         total_perc=sum(percent_in_distance_class)) %>% 
+  filter(distance_class != ">5000") %>% 
+  mutate(distance_class = recode(distance_class, "500-5000" = ">500")) %>% 
+  ungroup() %>% 
+  dplyr::select(-area_ha, -percent_in_distance_class) 
+ecoregion_area_summary
+
 
 #### FUNCTIONS
 #A set of functions that will be called for displaying table, map and graphs
