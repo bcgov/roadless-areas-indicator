@@ -12,8 +12,9 @@
 
 source("header.R")
 
-#Read in road surface - add 50m since 100m road already has a 50m buffer
-roadsS<-raster(file.path(dataOutDir,"roadsS.tif"), format="GTiff")+50
+#Read in road surface and Provincial mask - if required
+#roadsS<-raster(file.path(dataOutDir,"roadsS.tif"), format="GTiff")
+#BCr <- raster(file.path(dataOutDir,"BCr.tif"), format="GTiff")
 
 #define the distance class breaks 
 reclCls<-c(0,500,1, 500,5000,2 ,5000,1000000,3)
@@ -39,7 +40,6 @@ areaIN<-res(roadsS)[1]*res(roadsS)[2]/10000 #e.g. for 200m grid 4 ha
 recl<-matrix(reclCls,ncol=3,byrow=TRUE)
 EcoRegRastS<-reclassify(roadsS, rcl=recl, right=FALSE, include.lowest=TRUE)
 # mask the surface for provincial reporting in 04_output.R
-BCr <- raster(file.path(dataOutDir,"BCr.tif"), format="GTiff")
 ProvRastS<-mask(EcoRegRastS, BCr)
 
 #Save files in tmp directory

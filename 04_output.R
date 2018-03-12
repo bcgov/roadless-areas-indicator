@@ -17,23 +17,10 @@ library(purrr)
 library(envreportutils)
 library(rasterVis)
 
-#Set/Read in provincial map
-EcoRegRastS <- raster(file.path(dataOutDir,"EcoRegRast.tif"), format="GTiff")
-ProvRastS <- raster(file.path(dataOutDir,"ProvRast.tif"), format="GTiff")
-#Get ha of each grid cell based on cell size
-areaIN<-res(ProvRastS)[1]*res(ProvRastS)[2]/10000 #e.g. for 200m grid 4 ha
-
-#Read in ice and water for evaluating using them as part of the mapping
-#IceWaterIn <- mask(raster(file.path(DataDir,"IceWater.tif"), format="GTiff"),BCr)
-#IceWater<-aggregate(IceWaterIn, fact=16, fun=mean)
-#Ocean<-(IceWater==1)*6
-#Ocean[Ocean==0]<- NA
-#Ice<-(IceWater==3)*5
-#Ice[Ice==0]<-NA
-#Water<-(IceWater==2)*4
-#Water[Water==0]<-NA
-#Rd[Rd==0]<-NA
-#roads_sf<-readRDS(file = "data/DRA_roads_sf_clean.rds")
+#Read in intermediate data sets and set variables if required
+#EcoRegRastS <- raster(file.path(dataOutDir,"EcoRegRast.tif"), format="GTiff")
+#ProvRastS <- raster(file.path(dataOutDir,"ProvRast.tif"), format="GTiff")
+#areaIN<-res(ProvRastS)[1]*res(ProvRastS)[2]/10000 #e.g. for 200m grid 4 ha
 
 #define some categorical variables and plotting labels based on distance breaks
 DistanceCls<-c(0,1,2,3)
@@ -45,34 +32,27 @@ nclr<-length(DistLbls)
 # col_vec<-c(brewer.pal(nclr,"Greens"))
 col_vec<-c('gray61','lightgreen','forestgreen')
 
-## raster_by_poly with parallelization from Andy Teucher:
-#Generate a list of rasters, one for each strata - Slow for entire Province
-#strata to evaluate
-#Strata <- bcmaps::ecosections(class = "sp") # from bcmaps
-
+# Generate a list of rasters, one for each strata
 # Prepare ecoregions by removing marine then intersecting with bc boundary 
 Strata <- bcmaps::ecoregions() %>% # from bcmaps
   filter(!ECOREGION_CODE %in% c("HCS", "IPS", "OPS", "SBC", "TPC"))
   st_intersection(bc_bound_hres()) %>% 
   as("Spatial")
-
 SrataName <- "ECOREGION_NAME"
-#save strata as a shape for checking
-#writeOGR(obj=Strata, dsn=dataOutDir, layer="Strata", driver="ESRI Shapefile") # this is in geographical projection
 
 ## raster_by_poly with parallelization from Andy Teucher:
-#Generate a list of rasters, one for each strata - Slow for entire Province
+# Generate a list of rasters, one for each strata, put Province at front of list
 rbyp_par <- raster_by_poly(EcoRegRastS, Strata, SrataName, parallel = TRUE)
 rbyp_par<-c(ProvRastS,rbyp_par)
 rbyp_par_summary <- summarize_raster_list(rbyp_par)
 names(rbyp_par)[1] <- names(rbyp_par_summary)[1] <- 'Province'
 
 
-#Check if there is data in strata, if none then drop strata from list
+# Check if there is data in strata, if none then drop strata from list
 rbyp_par<-rbyp_par[lapply(rbyp_par_summary,length)>0]
 rbyp_par_summary<-rbyp_par_summary[lapply(rbyp_par_summary,length)>0] 
-#write out summaries for output routine
 
+#write out summaries for output routine
 saveRDS(rbyp_par, file = "tmp/rbyp_par")
 saveRDS(rbyp_par_summary, file = "tmp/rbyp_par_summary")
 rbyp_par<-readRDS(file = "tmp/rbyp_par")
@@ -85,18 +65,16 @@ rbyp_par_summary<-readRDS(file = "tmp/rbyp_par_summary")
 ecoreg_summary <- map_df(rbyp_par_summary, ~ {
   xDF <- data.frame(Distance = .x,
                     distance_class = cut(.x, breaks = DistanceCls, 
-                                         labels = DistLbls),#, right=FALSE, include.lowest=TRUE),
-                    area_ha = areaIN) 
-  
+                                         labels = DistLbls),
+                                         area_ha = areaIN)
   #Group by Distance Class 
   xDFGroup<-xDF %>%
     dplyr::select(distance_class, area_ha) %>%
     group_by(distance_class)  %>%
     summarise(area_ha=sum(area_ha)) %>% 
     mutate(percent_in_distance_class = area_ha/sum(area_ha)*100, 
-           roaded_class = factor(ifelse(distance_class == "0-500", 
-                                        "Roaded", "Not Roaded")))
-}, .id = "name")
+           roaded_class = factor(ifelse(distance_class == "0-500", "Roaded", "Not Roaded")))
+    }, .id = "name")
 
 #clean up the workspace
 gc()
@@ -107,19 +85,12 @@ gc()
 ggmap_strata <- function(strata) {
   e <- extent(strata)
   loc <- c(e[1] - 2, e[3] - 2, e[2] + 2, e[4] + 2)
-  
   get_map(loc, maptype = "satellite")
 }
 
 #Mapping function - removed tile and legend
 RdClsMap<-function(dat, Lbl, MCol, title="", plot_gmap = FALSE, legend = FALSE, 
                    n_classes = 3, max_px = 1000000) {
-
-  # dat_poly <- spTransform(dat_poly, "+init=epsg:4326")
-  # dat_poly@data$id <- 1:nrow(dat_poly@data)
-  # dat_df <- fortify(dat_poly)
-  # dat_df <- merge(dat_df, dat_poly@data, by.x = "id", by.y = "id")
-  
   if (n_classes == 2) {
     dat[dat == 3] <- 2
     Lbl <- c(Lbl[1], ">500m")
@@ -138,10 +109,9 @@ RdClsMap<-function(dat, Lbl, MCol, title="", plot_gmap = FALSE, legend = FALSE,
     coords <- coord_fixed()
     gg_start <- rasterVis::gplot(dat, maxpixels = max_px)
   }
-  
   gg_start +
-    geom_raster(aes(fill=factor(value),
-                                    colour = NULL), alpha=0.8) +
+    #geom_raster(aes(fill=factor(value),color = NULL), alpha=0.8) +
+    geom_raster(aes(fill=factor(value)), alpha=0.8) +
     coords + 
     scale_x_continuous(expand = c(0,0)) + 
     scale_y_continuous(expand = c(0,0)) +
