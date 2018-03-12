@@ -285,4 +285,3 @@ for (n in names(plot_list)) {
   plot(map)
   dev.off()
 }
-ß
