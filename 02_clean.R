@@ -31,8 +31,8 @@ RdTiles=splitRaster(Rd, nx=sqrt(nTiles), ny=sqrt(nTiles), buffer=c(Tilebuf,Tileb
 dT<-mclapply(RdTiles, gridDistance, origin=1, mc.cores = 3)
 dT_merge<-mergeRaster(dT)
 
-# need to use raster SetValues to work properly
-roadsS<-setValues(dT_merge,values(dT_merge))
+# need to use raster SetValues to work properly - add 50m since 100m road already has a 50m buffer
+roadsS<-setValues(dT_merge,values(dT_merge)) + 50
 
 proc.time() - ptm 
 
