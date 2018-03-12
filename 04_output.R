@@ -63,10 +63,12 @@ SrataName <- "ECOREGION_NAME"
 ## raster_by_poly with parallelization from Andy Teucher:
 #Generate a list of rasters, one for each strata - Slow for entire Province
 rbyp_par <- raster_by_poly(EcoRegRastS, Strata, SrataName, parallel = TRUE)
+## Add the province to the list and name it
 rbyp_par<-c(ProvRastS,rbyp_par)
-rbyp_par_summary <- summarize_raster_list(rbyp_par)
-names(rbyp_par)[1] <- names(rbyp_par_summary)[1] <- 'Province'
+names(rbyp_par)[1] <- 'Province'
 
+# Generate summary of the province and each ecoregion
+rbyp_par_summary <- summarize_raster_list(rbyp_par)
 
 #Check if there is data in strata, if none then drop strata from list
 rbyp_par<-rbyp_par[lapply(rbyp_par_summary,length)>0]
