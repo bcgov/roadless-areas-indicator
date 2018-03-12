@@ -46,12 +46,11 @@ ecoreg_summary <- read_csv(here("out/data/ecoreg_summary.csv")) %>%
 
 ecoreg <- ecoregions() %>% 
   filter(!ECOREGION_CODE %in% c("HCS", "IPS", "OPS", "SBC", "TPC")) %>% 
-  ms_simplify() %>% 
+  ms_simplify(keep = 0.01) %>% 
   st_intersection(bc_bound()) %>% 
   st_transform(4326) %>% 
   group_by(ECOREGION_NAME) %>% 
   summarize() %>% 
-  ms_simplify() %>% 
   left_join(ecoreg_summary, by = c("ECOREGION_NAME" = "name"))
 
 if (params$add_popups) {
