@@ -47,7 +47,7 @@ writeRaster(EcoRegRastS, filename=file.path(dataOutDir,"EcoRegRast.tif"), format
 writeRaster(ProvRastS, filename=file.path(dataOutDir,"ProvRast.tif"), format="GTiff", overwrite=TRUE)
 
 # Calculate the patch classes for areas >500m from a road - 
-# - generate a table to be sourced by the text on the frequency of small patches
+# generate a table to be sourced by the text on the frequency of small patches
 # reclassify the Provincial surface to a binary of 0-500 and >500
 recl<-matrix(reclPCls,ncol=3,byrow=TRUE)
 roadsSC<-reclassify(ProvRastS, rcl=recl, right=FALSE, include.lowest=TRUE)

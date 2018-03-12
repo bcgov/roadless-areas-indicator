@@ -185,8 +185,6 @@ strata_barchart <- function(data, labels, colours, n_classes = 3) {
     x_lab <- "Distance to roads (m)"
   }
   
-  
-  
   ggplot(data, aes(x = distance_class, y = percent_in_distance_class, fill=distance_class)) +
     geom_bar(stat="identity", alpha = 0.8) +
     scale_fill_manual(values=colours) +
