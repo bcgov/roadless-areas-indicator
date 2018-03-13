@@ -1,0 +1,43 @@
+---
+topic: # One of: "air", "water", "plants-and-animals", "climate-change", "land", "sustainability"
+title: "Indicator Title"
+bibliography: example.bib
+output: envreportutils.internal::print_ver
+---
+
+<!--
+Instructions:
+
+If you don't have a bibliography, delete the bibliography line in the YAML header.
+If you do have a bibliography, insert the filename. In-text citations are done as:
+[@Moe-etal-1999]. End the document with the bibliography heading (e.g., # References).
+-->
+
+Lorem ipsum dolor sit amet, maximus risus, imperdiet mi ac. Vitae tempor ultrices, odio euismod fames tempus at, sodales, eu lacus. Sit ac pellentesque eget ligula sociis mi sociis taciti sed nec. Sodales leo nam himenaeos a et. Porttitor adipiscing risus donec rhoncus est ut eget eu. Feugiat pellentesque donec, vitae neque. Sit faucibus eget nec quis turpis orci. Et, ultrices aptent magnis.
+
+
+```{r echo=FALSE, message=FALSE}
+library(ggplot2)
+ggplot(mtcars, aes(x = hp, y = mpg)) + 
+  geom_point() + 
+  geom_smooth()
+```
+
+Cum vivamus penatibus sed mus fringilla non sociosqu taciti ut. Sed, semper lacus justo ultricies penatibus praesent. Tortor vivamus fermentum libero, libero urna montes orci luctus ligula? Tellus et mauris sed a in lacinia imperdiet. Sed nec penatibus sed at mauris etiam. Interdum morbi arcu vitae lectus cubilia eros, imperdiet felis. Nisl, lacinia vel, nisl, rutrum ac, elementum felis. Dui ante eros ex mi, interdum velit accumsan sociosqu, tempus. Erat vulputate potenti nascetur. Malesuada, curabitur, leo himenaeos, molestie euismod sit. In vitae sollicitudin adipiscing commodo.
+
+## References and Other Useful Links
+
+* Link 1
+* Link 2
+
+## Data
+
+\*By accessing these datasets, you agree to the license associated with each file, as indicated in parentheses below.
+
+* Data 1
+* Data 2
+
+Published and Available On-Line at Environmental Reporting BC (Month Year):
+[](http://www.env.gov.bc.ca/soe)
+
+Email correspondence to: envreportbc@gov.bc.ca
