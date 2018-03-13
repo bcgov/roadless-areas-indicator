@@ -1,8 +1,8 @@
 <div id="devex-badge"><a rel="Exploration" href="https://github.com/BCDevExchange/assets/blob/master/README.md"><img alt="Being designed and built, but in the lab. May change, disappear, or be buggy." style="border-width:0" src="https://assets.bcdevexchange.org/images/badges/exploration.svg" title="Being designed and built, but in the lab. May change, disappear, or be buggy." /></a></div>
 
-# Roads & Areas Not Influenced by Roads in B.C.
+# Roads & Roadless Areas in B.C.
 
-This repository contains R code that summarizes the length of roads and amount of roadless areas in B.C. It supports the 'Roads & Areas Not Influenced by Roads' indicator published on [Environmental Reporting BC](http://www2.gov.bc.ca/gov/content?id=FF80E0B985F245CEA62808414D78C41B).
+This repository contains R code that summarizes the length of roads and amount of roadless area in B.C. It supports the 'Roads & Roadless Areas' indicator published on [Environmental Reporting BC](http://www2.gov.bc.ca/gov/content?id=FF80E0B985F245CEA62808414D78C41B).
 
 ### Data
 
@@ -10,7 +10,7 @@ This analysis uses the British Columbia [Digital Road Atlas available from the B
 
 The analyses exclude some surface and road types in the [Digital Road Atlas](https://catalogue.data.gov.bc.ca/dataset/bb060417-b6e6-4548-b837-f9060d94743e). Boat (B), overgrown (O) & decomissioned (D) roads are excluded from `TRANSPORT_LINE_SURFACE_CODE` and ferry routes (F, FP, FR, RWA), non-motorized trails (T, TD), road proposed (RP), and road pedestrian mall (RPM) are excluded from `TRANSPORT_LINE_TYPE_CODE`.
 
-The road length analysis sources the [Digital Road Atlas](https://catalogue.data.gov.bc.ca/dataset/bb060417-b6e6-4548-b837-f9060d94743e) from the B.C. Data Catalogue. The roadless areas analysis is based on [rasterized input data](https://en.wikipedia.org/wiki/Raster_data), generated with [R](https://www.r-project.org/) code that is also available in [GitHub](https://github.com/bcgov/bc-raster-roads).
+The road length analysis sources the [Digital Road Atlas](https://catalogue.data.gov.bc.ca/dataset/bb060417-b6e6-4548-b837-f9060d94743e) from the B.C. Data Catalogue. The roadless area analysis is based on [rasterized input data](https://en.wikipedia.org/wiki/Raster_data), generated with [R](https://www.r-project.org/) code that is also available in [GitHub](https://github.com/bcgov/bc-raster-roads).
 
 ### Usage
 
@@ -20,9 +20,9 @@ One script is required for the road length and road lnegth by road type analysis
 
 - road_summary.R
 
-#### Roadless Areas Analysis
+#### Roadless Area Analysis
 
-There are four core scripts that are required for the roadless areas analysis, they need to be run in order:
+There are four core scripts that are required for the roadless area analysis, they need to be run in order:
 
 -   01\_load.R
 -   02\_clean.R
