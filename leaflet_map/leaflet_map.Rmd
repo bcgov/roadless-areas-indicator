@@ -1,4 +1,5 @@
 ---
+pagetitle: "Roadless Areas in B.C."
 output:
   html_document:
     css: "leaflet_map.css"
