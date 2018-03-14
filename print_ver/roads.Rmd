@@ -1,17 +1,9 @@
 ---
-topic: # One of: "air", "water", "plants-and-animals", "climate-change", "land", "sustainability"
+topic: "land"
 title: "Indicator Title"
-bibliography: example.bib
 output: envreportutils.internal::print_ver
 ---
 
-<!--
-Instructions:
-
-If you don't have a bibliography, delete the bibliography line in the YAML header.
-If you do have a bibliography, insert the filename. In-text citations are done as:
-[@Moe-etal-1999]. End the document with the bibliography heading (e.g., # References).
--->
 
 Lorem ipsum dolor sit amet, maximus risus, imperdiet mi ac. Vitae tempor ultrices, odio euismod fames tempus at, sodales, eu lacus. Sit ac pellentesque eget ligula sociis mi sociis taciti sed nec. Sodales leo nam himenaeos a et. Porttitor adipiscing risus donec rhoncus est ut eget eu. Feugiat pellentesque donec, vitae neque. Sit faucibus eget nec quis turpis orci. Et, ultrices aptent magnis.
 
