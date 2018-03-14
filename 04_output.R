@@ -212,39 +212,12 @@ plot(PatchGroup$Npatch, type='l')
 plot_list <- imap(rbyp_par, ~ {
   ## .x is the object itself (the raster), .y is the name
   print(.y)
-  
-# #Calculate cummulative percent and area  
-#   nCases<-length(unique(xDF$DistCls))
-#   totArea<-sum(xDFGroup$AreaHa)
-#   distCumCls<-NULL
-#   areaCumCls<-NULL
-#   for (i in 1:nCases) {
-#     distCumCls<-c(distCumCls,(sum(xDF$Distance>DistanceCls[i]))/nrow(xDF)*100)
-#     areaCumCls<-c(areaCumCls,distCumCls[i]*totArea/100)
-#   }
-# #Merge all the data into a single data frame.  
-#   xDFGroup2<-cbind(xDFGroup,distCumCls,areaCumCls)
-  
-#Create a table object of the data frame
-  # tblIN<-data.frame(Distance=xDFGroup2$DistCls, pcDistance=round(xDFGroup2$pcDistCls,2), AreaDistance=round(xDFGroup2$AreaHa,2), pcCumDistance=round(xDFGroup2$distCumCls,2), AreaCumDistance=round(xDFGroup2$areaCumCls,2) )
-  # tt <- ttheme_default(colhead=list(fg_params = list(parse=TRUE)), padding=unit(c(1, 1), "mm"))
-  # tbl <- tableGrob(format(tblIN,big.mark=","), rows=NULL, theme=tt)
-   
 #Call graph function for distance and cummulative distance
   # plotCumm<-plotCummulativeFn(xDFGroup2, xDFGroup2$distCumCls, CumLbls, 'Cumulative Distance Class')
   xDFGroup2 <- filter(ecoreg_summary, name == .y)
   # plotDist<-plotCummulativeFn(xDFGroup2, xDFGroup2$percent_in_distance_class, DistLbls, 'Distance Class')
   strata_plot <- strata_barchart(xDFGroup2, colours = col_vec, n_classes = 2)
 
-#Map of distances
-
- #Test plot with ice, water, roads
- #col_vec<-c('gray61','lightgreen','forestgreen','darkblue','gray32')
- #plot(.x)
- #plot(Water, add=TRUE,col='blue')
- #plot(Ice,add=TRUE,col='gray32')
- #lines(roads_sf,col='red')
- 
   plotMap<-RdClsMap(.x, DistLbls, col_vec, title=.y, 
                     plot_gmap = FALSE, legend = FALSE, n_classes = 2)
   
