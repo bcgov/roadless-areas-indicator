@@ -107,6 +107,8 @@ ecoregion_area_summary <- ecoreg_summary %>%
   filter(roaded_class == "Not Roaded")
 ecoregion_area_summary
 
+more50 <- ecoregion_area_summary %>% count(total_perc > 50)
+less25 <- ecoregion_area_summary %>% count(total_perc < 25)
 
 #### FUNCTIONS
 #A set of functions that will be called for displaying table, map and graphs
