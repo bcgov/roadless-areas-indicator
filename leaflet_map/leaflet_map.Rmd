@@ -98,7 +98,7 @@ leaflet(ecoreg, width = "900px", height = "550px") %>%
               weight = 1, fillOpacity = 0.6,
               highlightOptions = highlightOptions(fillOpacity = 0.9,
                                                   weight = 2,
-                                                  bringToFront = TRUE), 
+                                                  bringToFront = FALSE), 
               label = labels,
               labelOptions = labelOptions(direction = "auto", 
                                           textsize = "12px"), 
