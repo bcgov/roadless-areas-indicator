@@ -24,11 +24,11 @@ ProvRast<-raster(nrows=15744, ncols=17216, xmn=159587.5, xmx=1881187.5,
 
 BCr_file <- file.path(dataOutDir,"BCr.tif")
 if (!file.exists(BCr_file)) {
-  BCr <- rasterize(bcmaps::bc_bound_hres(class = "sp"), ProvRast, mask=TRUE, 
-                   filename = BCr_file, overwrite = TRUE)
+  BCr <- rasterize(bcmaps::bc_bound_hres(class = "sp"), ProvRast, mask=TRUE)
   writeRaster(BCr, filename=file.path(dataOutDir,"BCr.tif"), 
               format="GTiff", overwrite=TRUE)
 } else {
+  
   BCr <- raster(BCr_file)
 }
 
