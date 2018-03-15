@@ -111,6 +111,12 @@ leaflet(ecoreg, width = "900px", height = "550px") %>%
      onClick = JS("function(btn, map) { 
                      map.closePopup();
                      map.setView({lon: -126.5, lat: 54.5}, 5);
+                     map.eachLayer(function (layer) {
+                         if (layer instanceof L.Polygon) {
+                           // console.log(layer.label);
+                          layer.label.close();
+                         }
+                     });
                   }"), 
      position = "bottomleft", id = "reset-button")) %>% 
   addLegend(position = "bottomleft", pal = pal, values = ~percent_unroaded, 
