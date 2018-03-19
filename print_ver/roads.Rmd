@@ -9,6 +9,34 @@ Lorem ipsum dolor sit amet, maximus risus, imperdiet mi ac. Vitae tempor ultrice
 
 Cum vivamus penatibus sed mus fringilla non sociosqu taciti ut. Sed, semper lacus justo ultricies penatibus praesent. Tortor vivamus fermentum libero, libero urna montes orci luctus ligula? Tellus et mauris sed a in lacinia imperdiet. Sed nec penatibus sed at mauris etiam. Interdum morbi arcu vitae lectus cubilia eros, imperdiet felis. Nisl, lacinia vel, nisl, rutrum ac, elementum felis. Dui ante eros ex mi, interdum velit accumsan sociosqu, tempus. Erat vulputate potenti nascetur. Malesuada, curabitur, leo himenaeos, molestie euismod sit. In vitae sollicitudin adipiscing commodo.
 
+\begin{center}
+\fbox{
+  \begin{minipage}[c]{14cm}
+  
+   \begingroup\centering{\textbf{B.C. Digital Road Atlas}}
+   
+     \endgroup
+     
+    \vspace{1mm}
+    
+    \text{The Digital Road Atlas is a single, authoritative source of road data for the Province of B.C.}
+    
+       \vspace{2mm}
+    
+    \text{The B.C. Government is working toward updating and integrating all resource roads into this}
+    \text{this single comprehensive database.}
+    
+       \vspace{2mm}
+    
+    \href{http://www.env.gov.bc.ca/soe/indicators/land/protected-lands-and-waters.html}{Explore the B.C. Digital Road Atlas to learn more about roads in B.C.}
+    
+  \end{minipage}
+}
+\end{center}
+
+\newpage
+
+
 ## References and Other Useful Links
 
 * Link 1
