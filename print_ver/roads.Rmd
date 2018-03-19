@@ -39,15 +39,33 @@ Cum vivamus penatibus sed mus fringilla non sociosqu taciti ut. Sed, semper lacu
 
 ## References and Other Useful Links
 
-* Link 1
-* Link 2
+-   [B.C. Digital Road Atlas](https://www2.gov.bc.ca/gov/content?id=21FFEC94B0AD40818D2D2AF06D522714)
+-   [Biodiversity B.C.](http://www.biodiversitybc.org/EN/main/26.html)
+-   ^1^Trombulak, S.C. and C.A. Frissell. 2000. Review of ecological
+    effects of roads on terrestrial and aquatic communities.
+    Conservation Biology. 14: 18-30. [DOI:
+    10.1046/j.1523-1739.2000.99084.x](http://onlinelibrary.wiley.com/doi/10.1046/j.1523-1739.2000.99084.x/full)
+-   ^2^[B.C. Forest Practices Board. 2015. Access Management and
+    Resource Roads: 2015 Update.
+    FPB/SR/49.](https://www.bcfpb.ca/reports-publications/reports/access-management-and-resource-roads-2015-update)
+-  ^3^[Lee, P.G., M. Hanneman, J.D. Gysbers, R. Cheng and W.
+    Smith. 2010. Atlas of Canada’s Intact Forest Landscapes. Edmonton,
+    Alberta: Global Forest Watch Canada 10th Anniversary Publication
+    \#1. 74 pp.
+    (PDF)](https://globalforestwatch.ca/sites/gfwc/files/publications/20100913A_01CanadaAtlas_IFL_highres.pdf)
+-   ^4^[British Columbia. Ministry of Environment. 2007. Environmental
+    Trends in British Columbia: 2007. Ministry of Environment, State of
+    Environment
+    Reporting.](https://www2.gov.bc.ca/gov/content?id=07DD1DCE7F784EFEBA5A26C32CB1646D)
 
 ## Data
 
 \*By accessing these datasets, you agree to the licence associated with each file, as indicated in parentheses below.
 
-* Data 1
-* Data 2
+-   [Indicator data: Amount of Roadless Area by Ecoregion in B.C.](https://catalogue.data.gov.bc.ca/dataset?download_audience=Public) (Licence: [Open Government Licence - British Columbia](http://www2.gov.bc.ca/gov/content?id=A519A56BC2BF44E4A008B33FCF527F61))
+-   [Digital Road Atlas (DRA) - Master Partially-Attributed Roads](https://catalogue.data.gov.bc.ca/dataset/bb060417-b6e6-4548-b837-f9060d94743e) (Licence: [B.C. Crown Copyright](https://www2.gov.bc.ca/gov/content?id=1AAACC9C65754E4D89A118B875E0FBDA))
+-   [Ecoregions - Ecoregion Ecosystem Classification of British
+    Columbia](https://catalogue.data.gov.bc.ca/dataset/d00389e0-66da-4895-bd56-39a0dd64aa78) (Licence: [Open Government Licence - British Columbia](http://www2.gov.bc.ca/gov/content?id=A519A56BC2BF44E4A008B33FCF527F61))
 
 Published and Available On-Line at Environmental Reporting BC (Month Year):
 [](http://www.env.gov.bc.ca/soe)
