@@ -21,8 +21,8 @@ See the License for the specific language governing permissions and limitations 
 -->
 
 <!-- 
-To speed up development of appearance of the map, change `add_popups` 
-paremeter to `false` so that popups aren't rendered (which takes a long time) 
+To speed up development of appearance of the map, change `add_popups` paremeter 
+in the yaml header to `false` so that popups aren't rendered (which takes a long time) 
 -->
 
 ```{r setup, include=FALSE}
@@ -107,13 +107,19 @@ leaflet(ecoreg, width = "900px", height = "550px") %>%
               popupOptions = popup_options
               ) %>% 
   addEasyButton(easyButton(
-     icon = htmltools::span('Reset to B.C.'),
+     icon = htmltools::span('Reset Map'),
      onClick = JS("function(btn, map) { 
                      map.closePopup();
                      map.setView({lon: -126.5, lat: 54.5}, 5);
+                     // Close labels - they stay stuck open on mobile
+                     map.eachLayer(function (layer) {
+                         if (layer instanceof L.Polygon) {
+                           layer.label.close();
+                         }
+                     });
                   }"), 
      position = "bottomleft", id = "reset-button")) %>% 
   addLegend(position = "bottomleft", pal = pal, values = ~percent_unroaded, 
-            title = htmltools::HTML("% Area Not<br/>Influenced<br/>by Roads"), 
+            title = htmltools::HTML("% Roadless<br/>Area"), 
             labFormat = labelFormat(suffix = "%", between = ""))
 ```
