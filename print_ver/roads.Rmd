@@ -91,6 +91,13 @@ include_graphics(paste0(image_path, areas_map))
 
 \newpage
 
+## Methods
+This indicator is based on the B.C. [Digital Road Atlas](https://catalogue.data.gov.bc.ca/dataset/bb060417-b6e6-4548-b837-f9060d94743e), the authoritative source of road data for British Columbia (accessed on March 1st, 2018). All paved and gravel roads that allow motorized vehicle use were included in the analysis. Some features available in the [Digital Road Atlas](https://catalogue.data.gov.bc.ca/dataset/bb060417-b6e6-4548-b837-f9060d94743e) were excluded, including non-roads (ferry routes, proposed roads, pedestrian only roads, trails and water access routes) and non-active roads (decommissioned and overgrown roads). The indicator presents a coarse-scale snapshot of the amount and distribution of roads in British Columbia, however road condition or intensity of road use was not evaluated. Roadless areas were determined by applying a 500 metre buffer on either side of all roads. A 500 metre buffer is a conservative value for determining influence and has been defined as the minimum zone of influence in recent assessments of intact landscapes in
+Canada^3^.
+
+The [**R**](http://www.r-project.org) code for repeating the analysis and data visualizations presented on this page is available on [GitHub](https://github.com/bcgov/roadless-areas-indicator).
+
+
 ## References and Other Useful Links
 
 -   [B.C. Digital Road Atlas](https://www2.gov.bc.ca/gov/content?id=21FFEC94B0AD40818D2D2AF06D522714)
