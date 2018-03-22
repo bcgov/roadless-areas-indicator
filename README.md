@@ -29,7 +29,7 @@ There are four core scripts that are required for the roadless area analysis, th
 -   03\_analysis.R
 -   04\_output.R
 
-An installation of [GDAL](http://www.gdal.org/) is required for the `ogr2ogr` command in the  road_summary.R file. Most packages used in the analyses can be installed from CRAN using `install.packages()`, but you will need to install [`envreportutils`](https://github.com/bcgov/envreportutils) and [`patchwork`](https://github.com/thomasp85/patchwork) using devtools:
+Most packages used in the analysis can be installed from CRAN using `install.packages()`, but you will need to install [`envreportutils`](https://github.com/bcgov/envreportutils) and [`patchwork`](https://github.com/thomasp85/patchwork) using devtools:
 
 ```r
 install.packages("devtools") # if you don't already have it installed
