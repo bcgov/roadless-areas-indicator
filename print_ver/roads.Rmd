@@ -4,6 +4,19 @@ title: "Roads & Roadless Areas in British Columbia"
 output: envreportutils.internal::print_ver
 ---
 
+```{r set-options, echo=FALSE, cache=FALSE, warning=FALSE, message=FALSE}
+library(knitr)
+library(png)
+library(here)
+#library(ggplot2) #plotting
+
+opts_chunk$set(echo=FALSE, cache=FALSE, warning=FALSE, message=FALSE, error=FALSE)
+
+# Set chart font to "" so uses pdf font
+chart_font_web <- ""
+
+image_path <- here("out/")
+```
 
 Lorem ipsum dolor sit amet, maximus risus, imperdiet mi ac. Vitae tempor ultrices, odio euismod fames tempus at, sodales, eu lacus. Sit ac pellentesque eget ligula sociis mi sociis taciti sed nec. Sodales leo nam himenaeos a et. Porttitor adipiscing risus donec rhoncus est ut eget eu. Feugiat pellentesque donec, vitae neque. Sit faucibus eget nec quis turpis orci. Et, ultrices aptent magnis.
 
@@ -47,7 +60,36 @@ Cum vivamus penatibus sed mus fringilla non sociosqu taciti ut. Sed, semper lacu
 - Malesuada, curabitur, leo himenaeos, molestie euismod sit. In vitae sollicitudin adipiscing commodo.
 
 
+```{r out.width = "55%"}
 
+road_bar <- "soe_roads_by_surface.png"
+road_map <- "soe_roads_map.png"
+include_graphics(paste0(image_path, road_bar))
+include_graphics(paste0(image_path, road_map))
+```
+
+
+## Roadless Areas in B.C.
+
+- Nisl, lacinia vel, nisl, rutrum ac, elementum felis. Dui ante eros ex mi, interdum velit accumsan sociosqu, tempus. Erat vulputate potenti nascetur. 
+- Malesuada, curabitur, leo himenaeos, molestie euismod sit. In vitae sollicitudin adipiscing commodo.
+
+```{r out.width = "55%"}
+
+areas_bar <- "figures/Province_barchart.png"
+areas_map <- "figures/Province_map.png"
+include_graphics(paste0(image_path, areas_bar))
+include_graphics(paste0(image_path, areas_map))
+```
+
+\newpage
+
+## Roadless Areas within B.C.'s Ecoregions
+
+- Nisl, lacinia vel, nisl, rutrum ac, elementum felis. Dui ante eros ex mi, interdum velit accumsan sociosqu, tempus. Erat vulputate potenti nascetur. 
+- Malesuada, curabitur, leo himenaeos, molestie euismod sit. In vitae sollicitudin adipiscing commodo.
+
+\newpage
 
 ## References and Other Useful Links
 
