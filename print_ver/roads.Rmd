@@ -14,7 +14,8 @@ library(rmapshaper)
 library(bcmaps)
 library(ggplot2)
 library(sf)
-library(RColorBrewer)
+library(patchwork)
+library(purrr)
 
 opts_chunk$set(echo=FALSE, cache=FALSE, warning=FALSE, message=FALSE, error=FALSE)
 
@@ -22,6 +23,7 @@ opts_chunk$set(echo=FALSE, cache=FALSE, warning=FALSE, message=FALSE, error=FALS
 chart_font_web <- ""
 
 proj_path <- here("out/")
+rds_path <- here("tmp/")
 ```
 
 Lorem ipsum dolor sit amet, maximus risus, imperdiet mi ac. Vitae tempor ultrices, odio euismod fames tempus at, sodales, eu lacus. Sit ac pellentesque eget ligula sociis mi sociis taciti sed nec. Sodales leo nam himenaeos a et. Porttitor adipiscing risus donec rhoncus est ut eget eu. Feugiat pellentesque donec, vitae neque. Sit faucibus eget nec quis turpis orci. Et, ultrices aptent magnis.
@@ -170,8 +172,10 @@ Published and Available On-Line at Environmental Reporting BC (Month Year):
 
 Email correspondence to: envreportbc@gov.bc.ca
 
+<!--
 \newpage
 
 ## APPENDIX: Roadless Area Summaries for Each Ecoregion in B.C.
 
+-->
 
