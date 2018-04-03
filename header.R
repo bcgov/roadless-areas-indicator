@@ -3,6 +3,7 @@ library(dplyr)
 library(readr)
 library(raster)
 library(bcmaps)
+library(fasterize)
 
 OutDir <- 'out'
 dataOutDir <- file.path(OutDir,'data')
