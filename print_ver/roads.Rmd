@@ -114,7 +114,7 @@ ecoreg <- ecoregions() %>%
   summarize() %>% 
   left_join(ecoreg_summary, by = c("ECOREGION_NAME" = "name")) %>% 
   ggplot() +
-  geom_sf(aes(fill=percent_unroaded), size = 0.1) +
+  geom_sf(aes(fill=percent_unroaded, geometry = SHAPE), size = 0.1) +
   geom_sf(data = bc_bound(), fill = NA, size = 0.2) +
   coord_sf(datum = NA) +
 #  scale_fill_continuous(name = "% Roadless Area") +
