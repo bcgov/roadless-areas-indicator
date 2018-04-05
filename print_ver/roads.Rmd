@@ -172,10 +172,28 @@ Published and Available On-Line at Environmental Reporting BC (Month Year):
 
 Email correspondence to: envreportbc@gov.bc.ca
 
-<!--
+
 \newpage
 
 ## APPENDIX: Roadless Area Summaries for Each Ecoregion in B.C.
 
--->
+```{r appendix, results='asis', fig.height=4, fig.width=4.5}
+
+plot_list <- readRDS(paste0(rds_path, "plotlist.rds"))
+
+plot_list <- plot_list[names(plot_list) != "Province"]
+
+foo <- plot_list[1:2]
+
+iwalk(foo,  ~ {
+  cat("\nECOREGION: ", .y, "\n", sep = "")
+  cat("\n")
+  plot(.x$barchart)
+  plot(.x$map)
+  cat(" \n")
+})
+
+
+```
+
 
