@@ -19,9 +19,6 @@ library(purrr)
 
 opts_chunk$set(echo=FALSE, cache=FALSE, warning=FALSE, message=FALSE, error=FALSE)
 
-# Set chart font to "" so uses pdf font
-chart_font_web <- ""
-
 proj_path <- here("out/")
 rds_path <- here("tmp/")
 ```
@@ -177,20 +174,20 @@ Email correspondence to: envreportbc@gov.bc.ca
 
 ## APPENDIX: Roadless Area Summaries for Each Ecoregion in B.C.
 
-```{r appendix, results='asis', fig.height=4, fig.width=4.5}
+```{r appendix, results='asis', fig.height=4, fig.width=6, fig.align='center'}
 
 plot_list <- readRDS(paste0(rds_path, "plotlist.rds"))
 
 plot_list <- plot_list[names(plot_list) != "Province"]
 
-foo <- plot_list[1:2]
+#foo <- plot_list[1:4] #object for testing iwalk()
 
-iwalk(foo,  ~ {
-  cat("\nECOREGION: ", .y, "\n", sep = "")
-  cat("\n")
+iwalk(plot_list,  ~ {
+  cat("\\textbf{\nECOREGION: ", .y, "\n}", sep = "")
+  cat("\n ")
   plot(.x$barchart)
   plot(.x$map)
-  cat(" \n")
+  cat("\\newpage ")
 })
 
 
