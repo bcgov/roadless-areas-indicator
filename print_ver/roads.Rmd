@@ -21,6 +21,7 @@ opts_chunk$set(echo=FALSE, cache=FALSE, warning=FALSE, message=FALSE, error=FALS
 
 proj_path <- here("out/")
 rds_path <- here("tmp/")
+
 ```
 
 Lorem ipsum dolor sit amet, maximus risus, imperdiet mi ac. Vitae tempor ultrices, odio euismod fames tempus at, sodales, eu lacus. Sit ac pellentesque eget ligula sociis mi sociis taciti sed nec. Sodales leo nam himenaeos a et. Porttitor adipiscing risus donec rhoncus est ut eget eu. Feugiat pellentesque donec, vitae neque. Sit faucibus eget nec quis turpis orci. Et, ultrices aptent magnis.
@@ -176,16 +177,19 @@ Email correspondence to: envreportbc@gov.bc.ca
 
 ```{r appendix, results='asis', fig.height=4, fig.width=6, fig.align='center'}
 
+## Load list of plots for the appendix
 plot_list <- readRDS(paste0(rds_path, "plotlist.rds"))
-
 plot_list <- plot_list[names(plot_list) != "Province"]
 
 #foo <- plot_list[1:4] #object for testing iwalk()
 
 iwalk(plot_list,  ~ {
-  cat("\\textbf{\nECOREGION: ", .y, "\n}", sep = "")
-  cat("\n ")
-  plot(.x$barchart)
+#  cat("\\textbf{\nECOREGION: ", .y, "\n}", sep = "")
+#  cat("\n ")
+  barchart <- .x$barchart + 
+    labs(title = paste0(.y, "\n", "\n", sep = "")) +
+    theme(plot.title = element_text(size = 12, face="bold"))
+  plot(barchart)
   plot(.x$map)
   cat("\\newpage ")
 })
