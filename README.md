@@ -16,7 +16,7 @@ The road length analysis sources the [Digital Road Atlas](https://catalogue.data
 
 #### Road Length Analysis
 
-One script is required for the road length and road lnegth by road type analysis:
+One script is required for the road length and road length by road type analysis:
 
 - road_summary.R
 
