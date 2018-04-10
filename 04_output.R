@@ -199,7 +199,7 @@ plot_list <- imap(rbyp_par, ~ {
   list(map = plotMap, 
        barchart = strata_plot)
 
-}, .id = "name")
+})
 
 # walk loops over a list and executes functions but doesn't return anything to the 
 # environment. Good for plotting
