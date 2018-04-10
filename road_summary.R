@@ -225,6 +225,9 @@ svg_px(file = "./out/soe_roads_by_surface.svg", width = 500, height = 500)
 plot(soe_roads_sum_chart)
 dev.off()
 
+# Save bar chart object to RDS for print version
+saveRDS(soe_roads_sum_chart, file = "tmp/soe_roads_sum_chart.rds")
+
 # Plot of soe_roads map
 
 # colour palette
