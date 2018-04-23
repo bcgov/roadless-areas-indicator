@@ -11,9 +11,6 @@
 # See the License for the specific language governing permissions and limitations under the License.
 
 source("header.R")
-require(SpaDES)
-library(parallel)
-library(doMC)
 
 #Common parameters
 nTiles<-100

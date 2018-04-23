@@ -36,5 +36,5 @@ if (!file.exists(BCr_file)) {
 RoadDensP100<-crop(RoadDens,ProvRast)
 
 #write out processed rasters
-writeRaster(RoadDensP100, filename=file.path(dataOutDir,"RoadDensP100.tif"), format="GTiff", overwrite=TRUE)
+#writeRaster(RoadDensP100, filename=file.path(dataOutDir,"RoadDensP100.tif"), format="GTiff", overwrite=TRUE)
 

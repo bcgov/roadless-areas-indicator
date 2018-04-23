@@ -3,6 +3,9 @@ library(dplyr)
 library(readr)
 library(raster)
 library(bcmaps)
+require(SpaDES)
+library(parallel)
+library(doMC)
 
 OutDir <- 'out'
 dataOutDir <- file.path(OutDir,'data')
