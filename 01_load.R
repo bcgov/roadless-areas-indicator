@@ -20,7 +20,7 @@ RoadDens<-raster(file.path(DataDir,"RoadDensR.tif"))
 ProvRast<-raster(nrows=15744, ncols=17216, xmn=159587.5, xmx=1881187.5,
                  ymn=173787.5, ymx=1748187.5, 
                  crs="+proj=aea +lat_1=50 +lat_2=58.5 +lat_0=45 +lon_0=-126 +x_0=1000000 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0",
-                 res = c(100,100), vals = 0)
+                 resolution = c(100,100), vals = 0)
 
 BCr_file <- file.path(dataOutDir,"BCr.tif")
 if (!file.exists(BCr_file)) {
