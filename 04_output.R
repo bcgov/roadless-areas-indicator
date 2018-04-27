@@ -17,23 +17,10 @@ library(purrr)
 library(envreportutils)
 library(rasterVis)
 
-#Set/Read in provincial map
-EcoRegRastS <- raster(file.path(dataOutDir,"EcoRegRast.tif"), format="GTiff")
-ProvRastS <- raster(file.path(dataOutDir,"ProvRast.tif"), format="GTiff")
-#Get ha of each grid cell based on cell size
-areaIN<-res(ProvRastS)[1]*res(ProvRastS)[2]/10000 #e.g. for 200m grid 4 ha
-
-#Read in ice and water for evaluating using them as part of the mapping
-#IceWaterIn <- mask(raster(file.path(DataDir,"IceWater.tif"), format="GTiff"),BCr)
-#IceWater<-aggregate(IceWaterIn, fact=16, fun=mean)
-#Ocean<-(IceWater==1)*6
-#Ocean[Ocean==0]<- NA
-#Ice<-(IceWater==3)*5
-#Ice[Ice==0]<-NA
-#Water<-(IceWater==2)*4
-#Water[Water==0]<-NA
-#Rd[Rd==0]<-NA
-#roads_sf<-readRDS(file = "data/DRA_roads_sf_clean.rds")
+#Read in intermediate data sets and set variables if required
+# EcoRegRastS <- raster(file.path(dataOutDir,"EcoRegRast.tif"), format="GTiff")
+# ProvRastS <- raster(file.path(dataOutDir,"ProvRast.tif"), format="GTiff")
+# areaIN<-res(ProvRastS)[1]*res(ProvRastS)[2]/10000 #e.g. for 200m grid 4 ha
 
 #define some categorical variables and plotting labels based on distance breaks
 DistanceCls<-c(0,1,2,3)
@@ -45,34 +32,29 @@ nclr<-length(DistLbls)
 # col_vec<-c(brewer.pal(nclr,"Greens"))
 col_vec<-c('gray61','lightgreen','forestgreen')
 
-## raster_by_poly with parallelization from Andy Teucher:
-#Generate a list of rasters, one for each strata - Slow for entire Province
-#strata to evaluate
-#Strata <- bcmaps::ecosections(class = "sp") # from bcmaps
-
+# Generate a list of rasters, one for each strata
 # Prepare ecoregions by removing marine then intersecting with bc boundary 
 Strata <- bcmaps::ecoregions() %>% # from bcmaps
-  filter(!ECOREGION_CODE %in% c("HCS", "IPS", "OPS", "SBC", "TPC"))
-  st_intersection(bc_bound_hres()) %>% 
-  as("Spatial")
+  filter(!ECOREGION_CODE %in% c("HCS", "IPS", "OPS", "SBC", "TPC")) %>% 
+  st_intersection(bc_bound_hres())
 
 SrataName <- "ECOREGION_NAME"
-#save strata as a shape for checking
-#writeOGR(obj=Strata, dsn=dataOutDir, layer="Strata", driver="ESRI Shapefile") # this is in geographical projection
 
 ## raster_by_poly with parallelization from Andy Teucher:
-#Generate a list of rasters, one for each strata - Slow for entire Province
+# Generate a list of rasters, one for each strata, put Province at front of list
 rbyp_par <- raster_by_poly(EcoRegRastS, Strata, SrataName, parallel = TRUE)
+## Add the province to the list and name it
 rbyp_par<-c(ProvRastS,rbyp_par)
+names(rbyp_par)[1] <- 'Province'
+
+# Generate summary of the province and each ecoregion
 rbyp_par_summary <- summarize_raster_list(rbyp_par)
-names(rbyp_par)[1] <- names(rbyp_par_summary)[1] <- 'Province'
 
-
-#Check if there is data in strata, if none then drop strata from list
+# Check if there is data in strata, if none then drop strata from list
 rbyp_par<-rbyp_par[lapply(rbyp_par_summary,length)>0]
 rbyp_par_summary<-rbyp_par_summary[lapply(rbyp_par_summary,length)>0] 
-#write out summaries for output routine
 
+#write out summaries for output routine
 saveRDS(rbyp_par, file = "tmp/rbyp_par")
 saveRDS(rbyp_par_summary, file = "tmp/rbyp_par_summary")
 rbyp_par<-readRDS(file = "tmp/rbyp_par")
@@ -85,21 +67,20 @@ rbyp_par_summary<-readRDS(file = "tmp/rbyp_par_summary")
 ecoreg_summary <- map_df(rbyp_par_summary, ~ {
   xDF <- data.frame(Distance = .x,
                     distance_class = cut(.x, breaks = DistanceCls, 
-                                         labels = DistLbls),#, right=FALSE, include.lowest=TRUE),
-                    area_ha = areaIN) 
-  
+                                         labels = DistLbls),
+                                         area_ha = areaIN)
   #Group by Distance Class 
   xDFGroup<-xDF %>%
     dplyr::select(distance_class, area_ha) %>%
     group_by(distance_class)  %>%
     summarise(area_ha=sum(area_ha)) %>% 
     mutate(percent_in_distance_class = area_ha/sum(area_ha)*100, 
-           roaded_class = factor(ifelse(distance_class == "0-500", 
-                                        "Roaded", "Not Roaded")))
-}, .id = "name")
+           roaded_class = factor(ifelse(distance_class == "0-500", "Roaded", "Not Roaded")))
+    }, .id = "name")
 
 #clean up the workspace
 gc()
+
 
 #### FUNCTIONS
 #A set of functions that will be called for displaying table, map and graphs
@@ -107,19 +88,12 @@ gc()
 ggmap_strata <- function(strata) {
   e <- extent(strata)
   loc <- c(e[1] - 2, e[3] - 2, e[2] + 2, e[4] + 2)
-  
   get_map(loc, maptype = "satellite")
 }
 
 #Mapping function - removed tile and legend
 RdClsMap<-function(dat, Lbl, MCol, title="", plot_gmap = FALSE, legend = FALSE, 
                    n_classes = 3, max_px = 1000000) {
-
-  # dat_poly <- spTransform(dat_poly, "+init=epsg:4326")
-  # dat_poly@data$id <- 1:nrow(dat_poly@data)
-  # dat_df <- fortify(dat_poly)
-  # dat_df <- merge(dat_df, dat_poly@data, by.x = "id", by.y = "id")
-  
   if (n_classes == 2) {
     dat[dat == 3] <- 2
     Lbl <- c(Lbl[1], ">500m")
@@ -138,10 +112,8 @@ RdClsMap<-function(dat, Lbl, MCol, title="", plot_gmap = FALSE, legend = FALSE,
     coords <- coord_fixed()
     gg_start <- rasterVis::gplot(dat, maxpixels = max_px)
   }
-  
-  gg_start +
-    geom_raster(aes(fill=factor(value),
-                                    colour = NULL), alpha=0.8) +
+  gg_start + 
+    geom_raster(aes(fill=factor(value)), alpha=0.8) +
     coords + 
     scale_x_continuous(expand = c(0,0)) + 
     scale_y_continuous(expand = c(0,0)) +
@@ -187,8 +159,6 @@ strata_barchart <- function(data, labels, colours, n_classes = 3) {
     x_lab <- "Distance to roads (m)"
   }
   
-  
-  
   ggplot(data, aes(x = distance_class, y = percent_in_distance_class, fill=distance_class)) +
     geom_bar(stat="identity", alpha = 0.8) +
     scale_fill_manual(values=colours) +
@@ -216,39 +186,12 @@ plot(PatchGroup$Npatch, type='l')
 plot_list <- imap(rbyp_par, ~ {
   ## .x is the object itself (the raster), .y is the name
   print(.y)
-  
-# #Calculate cummulative percent and area  
-#   nCases<-length(unique(xDF$DistCls))
-#   totArea<-sum(xDFGroup$AreaHa)
-#   distCumCls<-NULL
-#   areaCumCls<-NULL
-#   for (i in 1:nCases) {
-#     distCumCls<-c(distCumCls,(sum(xDF$Distance>DistanceCls[i]))/nrow(xDF)*100)
-#     areaCumCls<-c(areaCumCls,distCumCls[i]*totArea/100)
-#   }
-# #Merge all the data into a single data frame.  
-#   xDFGroup2<-cbind(xDFGroup,distCumCls,areaCumCls)
-  
-#Create a table object of the data frame
-  # tblIN<-data.frame(Distance=xDFGroup2$DistCls, pcDistance=round(xDFGroup2$pcDistCls,2), AreaDistance=round(xDFGroup2$AreaHa,2), pcCumDistance=round(xDFGroup2$distCumCls,2), AreaCumDistance=round(xDFGroup2$areaCumCls,2) )
-  # tt <- ttheme_default(colhead=list(fg_params = list(parse=TRUE)), padding=unit(c(1, 1), "mm"))
-  # tbl <- tableGrob(format(tblIN,big.mark=","), rows=NULL, theme=tt)
-   
 #Call graph function for distance and cummulative distance
   # plotCumm<-plotCummulativeFn(xDFGroup2, xDFGroup2$distCumCls, CumLbls, 'Cumulative Distance Class')
   xDFGroup2 <- filter(ecoreg_summary, name == .y)
   # plotDist<-plotCummulativeFn(xDFGroup2, xDFGroup2$percent_in_distance_class, DistLbls, 'Distance Class')
   strata_plot <- strata_barchart(xDFGroup2, colours = col_vec, n_classes = 2)
 
-#Map of distances
-
- #Test plot with ice, water, roads
- #col_vec<-c('gray61','lightgreen','forestgreen','darkblue','gray32')
- #plot(.x)
- #plot(Water, add=TRUE,col='blue')
- #plot(Ice,add=TRUE,col='gray32')
- #lines(roads_sf,col='red')
- 
   plotMap<-RdClsMap(.x, DistLbls, col_vec, title=.y, 
                     plot_gmap = FALSE, legend = FALSE, n_classes = 2)
   
@@ -256,7 +199,7 @@ plot_list <- imap(rbyp_par, ~ {
   list(map = plotMap, 
        barchart = strata_plot)
 
-}, .id = "name")
+})
 
 # walk loops over a list and executes functions but doesn't return anything to the 
 # environment. Good for plotting
@@ -270,19 +213,49 @@ saveRDS(plot_list, file = "tmp/plotlist.rds")
 write_csv(ecoreg_summary, "out/data/ecoreg_summary.csv")
 
 #save pngs of plots:
-
-plot_list <- readRDS("tmp/plotlist.rds")
 for (n in names(plot_list)) {
   print(n)
   barchart <- plot_list[[n]]$barchart
   barchart_fname <- file.path(figsOutDir, paste0(n, "_barchart.svg"))
+  barchart_pv_name <- file.path(figsOutDir, paste0(n, "_barchart.png"))
   map <- plot_list[[n]]$map
   map_fname <- file.path(figsOutDir, paste0(n, "_map.png"))
   svg_px(file = barchart_fname, width = 500, height = 500)
+  plot(barchart)
+  dev.off()
+  png_retina(file = barchart_pv_name, width = 500, height = 500, units = "px")
   plot(barchart)
   dev.off()
   png_retina(filename = map_fname, width = 500, height = 500, units = "px")
   plot(map)
   dev.off()
 }
-ß
+
+#summary of results
+
+bc_area_summary <- ecoreg_summary %>% 
+  filter(name == "Province") %>% 
+  group_by(name, roaded_class) %>% 
+  mutate(total_area=sum(area_ha),
+         total_perc=sum(percent_in_distance_class)) %>% 
+  filter(distance_class != ">5000") %>% 
+  mutate(distance_class = recode(distance_class, "500-5000" = ">500")) %>% 
+  ungroup() %>% 
+  dplyr::select(-area_ha, -percent_in_distance_class) 
+bc_area_summary
+
+
+ecoregion_area_summary <- ecoreg_summary %>% 
+  filter(name != "Province") %>% 
+  group_by(name, roaded_class) %>% 
+  mutate(total_area=sum(area_ha),
+         total_perc=sum(percent_in_distance_class)) %>% 
+  filter(distance_class != ">5000") %>% 
+  mutate(distance_class = recode(distance_class, "500-5000" = ">500")) %>% 
+  ungroup() %>% 
+  dplyr::select(-area_ha, -percent_in_distance_class) %>% 
+  filter(roaded_class == "Not Roaded")
+ecoregion_area_summary
+
+more50 <- ecoregion_area_summary %>% count(total_perc > 50)
+less25 <- ecoregion_area_summary %>% count(total_perc < 25)

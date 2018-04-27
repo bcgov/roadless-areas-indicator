@@ -1,0 +1,221 @@
+---
+topic: "land"
+title: "Roads & Roadless Areas in British Columbia"
+output: envreportutils.internal::print_ver
+---
+
+```{r set-options, echo=FALSE, cache=FALSE, warning=FALSE, message=FALSE}
+library(knitr)
+library(png)
+library(here)
+library(readr)
+library(dplyr)
+library(rmapshaper)
+library(bcmaps)
+library(ggplot2)
+library(sf)
+library(patchwork)
+library(purrr)
+library(forcats)
+
+
+opts_chunk$set(echo=FALSE, cache=FALSE, warning=FALSE, message=FALSE, error=FALSE)
+
+proj_path <- here("out/")
+rds_path <- here("tmp/")
+
+## Load csv for road summary and list of plots
+plot_list <- readRDS(paste0(rds_path, "plotlist.rds"))
+
+
+## axis text theme
+theme_text <- theme(axis.text = element_text(size=10),
+               axis.title = element_text(size=10))
+
+```
+
+Lorem ipsum dolor sit amet, maximus risus, imperdiet mi ac. Vitae tempor ultrices, odio euismod fames tempus at, sodales, eu lacus. Sit ac pellentesque eget ligula sociis mi sociis taciti sed nec. Sodales leo nam himenaeos a et. Porttitor adipiscing risus donec rhoncus est ut eget eu. Feugiat pellentesque donec, vitae neque. Sit faucibus eget nec quis turpis orci. Et, ultrices aptent magnis.
+
+- Nisl, lacinia vel, nisl, rutrum ac, elementum felis. Dui ante eros ex mi, interdum velit accumsan sociosqu, tempus. Erat vulputate potenti nascetur. Malesuada, curabitur, leo himenaeos, molestie euismod sit. In vitae sollicitudin adipiscing commodo.
+- Nisl, lacinia vel, nisl, rutrum ac, elementum felis. Dui ante eros ex mi, interdum velit accumsan sociosqu, tempus. Erat vulputate potenti nascetur. Malesuada, curabitur, leo himenaeos, molestie euismod sit. In vitae sollicitudin adipiscing commodo.
+- Nisl, lacinia vel, nisl, rutrum ac, elementum felis. Dui ante eros ex mi, interdum velit accumsan sociosqu, tempus. Erat vulputate potenti nascetur. Malesuada, curabitur, leo himenaeos, molestie euismod sit. In vitae sollicitudin adipiscing commodo.
+
+Cum vivamus penatibus sed mus fringilla non sociosqu taciti ut. Sed, semper lacus justo ultricies penatibus praesent. Tortor vivamus fermentum libero, libero urna montes orci luctus ligula? Tellus et mauris sed a in lacinia imperdiet. Sed nec penatibus sed at mauris etiam. Interdum morbi arcu vitae lectus cubilia eros, imperdiet felis. 
+
+
+\begin{center}
+\fbox{
+  \begin{minipage}[c]{14cm}
+  
+   \begingroup\centering{\textbf{B.C. Digital Road Atlas}}
+   
+     \endgroup
+     
+    \vspace{1mm}
+    
+    \text{The Digital Road Atlas is a single, authoritative source of road data for the Province of B.C.}
+    
+       \vspace{2mm}
+    
+    \text{The B.C. Government is working toward updating and integrating all resource roads into this}
+    \text{this single comprehensive database.}
+    
+       \vspace{2mm}
+    
+    \href{http://www.env.gov.bc.ca/soe/indicators/land/protected-lands-and-waters.html}{Explore the B.C. Digital Road Atlas to learn more about roads in B.C.}
+    
+  \end{minipage}
+}
+\end{center}
+
+\newpage
+
+
+## Roads & Road Types in B.C.
+
+- Nisl, lacinia vel, nisl, rutrum ac, elementum felis. Dui ante eros ex mi, interdum velit accumsan sociosqu, tempus. Erat vulputate potenti nascetur.
+- Malesuada, curabitur, leo himenaeos, molestie euismod sit. In vitae sollicitudin adipiscing commodo.
+
+```{r road-bar-plot, results='asis', fig.height=4, fig.width=6, fig.align='center'}
+
+soe_roads_sum_chart <- readRDS(paste0(rds_path, "soe_roads_sum_chart.rds"))
+
+barchart <- soe_roads_sum_chart +
+  theme_text
+plot(barchart)
+```
+
+```{r road-map, fig.align='center', out.width="70%"}
+
+road_map <- "soe_roads_map.png"
+include_graphics(paste0(proj_path, road_map))
+```
+
+\newpage
+
+## Roadless Areas in B.C.
+
+- Nisl, lacinia vel, nisl, rutrum ac, elementum felis. Dui ante eros ex mi, interdum velit accumsan sociosqu, tempus. Erat vulputate potenti nascetur.
+- Malesuada, curabitur, leo himenaeos, molestie euismod sit. In vitae sollicitudin adipiscing commodo.
+    
+```{r roadless-area-figures, results='asis', fig.height=4, fig.width=6, fig.align='center'}
+
+## Filter list of plots for the province plots only
+prov_list <- plot_list[names(plot_list) == "Province"]
+
+iwalk(prov_list,  ~ {
+  pbc <- .x$barchart + theme_text
+  plot(pbc)
+  plot(.x$map)
+})
+
+```
+
+\newpage
+
+## Roadless Areas within B.C.'s Ecoregions
+
+- Nisl, lacinia vel, nisl, rutrum ac, elementum felis. Dui ante eros ex mi, interdum velit accumsan sociosqu, tempus. Erat vulputate potenti nascetur.
+- Malesuada, curabitur, leo himenaeos, molestie euismod sit. In vitae sollicitudin adipiscing commodo.
+
+\vspace{30pt}
+
+```{r map, warning=FALSE, fig.height=8, fig.align="center"}
+ecoreg_summary <- read_csv(paste0(proj_path, "data/ecoreg_summary.csv")) %>% 
+  filter(name != "Province", roaded_class == "Not Roaded") %>% 
+  group_by(name) %>% 
+  summarize(percent_unroaded = sum(percent_in_distance_class), 
+            area_ha = sum(area_ha))
+
+ecoreg <- ecoregions() %>% 
+  filter(!ECOREGION_CODE %in% c("HCS", "IPS", "OPS", "SBC", "TPC")) %>% 
+  ms_simplify() %>% 
+  st_intersection(bc_bound()) %>% 
+  group_by(ECOREGION_NAME) %>% 
+  summarize() %>% 
+  left_join(ecoreg_summary, by = c("ECOREGION_NAME" = "name")) %>% 
+  ggplot() +
+  geom_sf(aes(fill=percent_unroaded, geometry = SHAPE), size = 0.1) +
+  geom_sf(data = bc_bound(), fill = NA, size = 0.2) +
+  coord_sf(datum = NA) +
+#  scale_fill_continuous(name = "% Roadless Area") +
+  scale_fill_distiller(name = "% Roadless Area", palette = "YlGn", trans = "reverse",
+                       breaks = c(20, 30, 40, 50, 60, 70, 80, 90)) +
+  theme_minimal() +
+  theme(legend.position = c(0.15, 0.1))
+plot(ecoreg)
+
+```
+
+\newpage
+
+## Methods
+This indicator is based on the B.C. [Digital Road Atlas](https://catalogue.data.gov.bc.ca/dataset/bb060417-b6e6-4548-b837-f9060d94743e), the authoritative source of road data for British Columbia (accessed on March 1st, 2018). All paved and gravel roads that allow motorized vehicle use were included in the analysis. Some features available in the [Digital Road Atlas](https://catalogue.data.gov.bc.ca/dataset/bb060417-b6e6-4548-b837-f9060d94743e) were excluded, including non-roads (ferry routes, proposed roads, pedestrian only roads, trails and water access routes) and non-active roads (decommissioned and overgrown roads). The indicator presents a coarse-scale snapshot of the amount and distribution of roads in British Columbia, however road condition or intensity of road use was not evaluated. Roadless areas were determined by applying a 500 metre buffer on either side of all roads. A 500 metre buffer is a conservative value for determining influence and has been defined as the minimum zone of influence in recent assessments of intact landscapes in
+Canada^3^.
+
+The [**R**](http://www.r-project.org) code for repeating the analysis and data visualizations presented on this page is available on [GitHub](https://github.com/bcgov/roadless-areas-indicator).
+
+## References and Other Useful Links
+
+-   [B.C. Digital Road Atlas](https://www2.gov.bc.ca/gov/content?id=21FFEC94B0AD40818D2D2AF06D522714)
+-   [Biodiversity B.C.](http://www.biodiversitybc.org/EN/main/26.html)
+-   ^1^Trombulak, S.C. and C.A. Frissell. 2000. Review of ecological
+    effects of roads on terrestrial and aquatic communities.
+    Conservation Biology. 14: 18-30. [DOI:
+    10.1046/j.1523-1739.2000.99084.x](http://onlinelibrary.wiley.com/doi/10.1046/j.1523-1739.2000.99084.x/full)
+-   ^2^[B.C. Forest Practices Board. 2015. Access Management and
+    Resource Roads: 2015 Update.
+    FPB/SR/49.](https://www.bcfpb.ca/reports-publications/reports/access-management-and-resource-roads-2015-update)
+-  ^3^[Lee, P.G., M. Hanneman, J.D. Gysbers, R. Cheng and W.
+    Smith. 2010. Atlas of Canada’s Intact Forest Landscapes. Edmonton,
+    Alberta: Global Forest Watch Canada 10th Anniversary Publication
+    \#1. 74 pp.
+    (PDF)](https://globalforestwatch.ca/sites/gfwc/files/publications/20100913A_01CanadaAtlas_IFL_highres.pdf)
+-   ^4^[British Columbia. Ministry of Environment. 2007. Environmental
+    Trends in British Columbia: 2007. Ministry of Environment, State of
+    Environment
+    Reporting.](https://www2.gov.bc.ca/gov/content?id=07DD1DCE7F784EFEBA5A26C32CB1646D)
+
+## Data
+
+\*By accessing these datasets, you agree to the licence associated with each file, as indicated in parentheses below.
+
+-   [Indicator data: Amount of Roadless Area by Ecoregion in B.C.](https://catalogue.data.gov.bc.ca/dataset?download_audience=Public) (Licence: [Open Government Licence - British Columbia](http://www2.gov.bc.ca/gov/content?id=A519A56BC2BF44E4A008B33FCF527F61))
+-   [Digital Road Atlas (DRA) - Master Partially-Attributed Roads](https://catalogue.data.gov.bc.ca/dataset/bb060417-b6e6-4548-b837-f9060d94743e) (Licence: [B.C. Crown Copyright](https://www2.gov.bc.ca/gov/content?id=1AAACC9C65754E4D89A118B875E0FBDA))
+-   [Ecoregions - Ecoregion Ecosystem Classification of British
+    Columbia](https://catalogue.data.gov.bc.ca/dataset/d00389e0-66da-4895-bd56-39a0dd64aa78) (Licence: [Open Government Licence - British Columbia](http://www2.gov.bc.ca/gov/content?id=A519A56BC2BF44E4A008B33FCF527F61))
+
+Published and Available On-Line at Environmental Reporting BC (Month Year):
+[](http://www.env.gov.bc.ca/soe)
+
+Email correspondence to: envreportbc@gov.bc.ca
+
+\newpage
+
+## APPENDIX: Roadless Area Summaries for Each Ecoregion in B.C.
+
+\vspace{20pt}
+
+```{r appendix, results='asis', fig.height=4, fig.width=6, fig.align='center'}
+
+## Filter list of plots for the ecoregion plots for the appendix
+appendix_list <- plot_list[names(plot_list) != "Province"]
+
+#foo <- appendix_list[1:4] #object for testing iwalk()
+
+iwalk(appendix_list,  ~ {
+#  cat("\\textbf{\nECOREGION: ", .y, "\n}", sep = "")
+#  cat("\n ")
+  ebc <- .x$barchart + 
+    labs(title = paste0(.y, "\n", "\n", sep = "")) +
+    theme(plot.title = element_text(size = 12, face="bold")) +
+    theme_text
+    plot(ebc)
+    plot(.x$map)
+   cat("\\newpage ")
+})
+
+
+```
+
+

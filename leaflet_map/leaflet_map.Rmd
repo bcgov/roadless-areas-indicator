@@ -1,10 +1,29 @@
 ---
+pagetitle: "Roadless Areas in B.C."
 output:
   html_document:
     css: "leaflet_map.css"
 params:
   add_popups: true
 ---
+<!-- 
+Copyright 2018 Province of British Columbia
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on  "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and limitations under the License.
+-->
+
+<!-- 
+To speed up development of appearance of the map, change `add_popups` paremeter 
+in the yaml header to `false` so that popups aren't rendered (which takes a long time) 
+-->
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -18,26 +37,26 @@ library(patchwork)
 library(ggplot2)
 library(purrr)
 library(readr)
+library(here)
 
-ecoreg_summary <- read_csv("out/data/ecoreg_summary.csv") %>% 
+ecoreg_summary <- read_csv(here("out/data/ecoreg_summary.csv")) %>% 
   filter(name != "Province", roaded_class == "Not Roaded") %>% 
   group_by(name) %>% 
   summarize(percent_unroaded = sum(percent_in_distance_class), 
             area_ha = sum(area_ha))
 
 ecoreg <- ecoregions() %>% 
-  filter(!ECOREGION_NAME %in% c("HCS", "IPS", "OPS", "SBC", "TPC")) %>% 
+  filter(!ECOREGION_CODE %in% c("HCS", "IPS", "OPS", "SBC", "TPC")) %>% 
   ms_simplify() %>% 
   st_intersection(bc_bound()) %>% 
   st_transform(4326) %>% 
   group_by(ECOREGION_NAME) %>% 
   summarize() %>% 
-  ms_simplify() %>% 
   left_join(ecoreg_summary, by = c("ECOREGION_NAME" = "name"))
 
 if (params$add_popups) {
   # get plot_list with ecoregions in same order as ecoregions in ecoreg
-  plot_list <- readRDS("tmp/plotlist.rds")[ecoreg$ECOREGION_NAME]
+  plot_list <- readRDS(here("tmp/plotlist.rds"))[ecoreg$ECOREGION_NAME]
   
   popupGraph_list <- imap(plot_list, ~ {
     .x$barchart + .x$map +
@@ -80,7 +99,7 @@ leaflet(ecoreg, width = "900px", height = "550px") %>%
               weight = 1, fillOpacity = 0.6,
               highlightOptions = highlightOptions(fillOpacity = 0.9,
                                                   weight = 2,
-                                                  bringToFront = TRUE), 
+                                                  bringToFront = FALSE), 
               label = labels,
               labelOptions = labelOptions(direction = "auto", 
                                           textsize = "12px"), 
@@ -88,13 +107,19 @@ leaflet(ecoreg, width = "900px", height = "550px") %>%
               popupOptions = popup_options
               ) %>% 
   addEasyButton(easyButton(
-     icon = htmltools::span('Reset to B.C.'),
+     icon = htmltools::span('Reset Map'),
      onClick = JS("function(btn, map) { 
                      map.closePopup();
                      map.setView({lon: -126.5, lat: 54.5}, 5);
+                     // Close labels - they stay stuck open on mobile
+                     map.eachLayer(function (layer) {
+                         if (layer instanceof L.Polygon) {
+                           layer.label.close();
+                         }
+                     });
                   }"), 
      position = "bottomleft", id = "reset-button")) %>% 
   addLegend(position = "bottomleft", pal = pal, values = ~percent_unroaded, 
-            title = htmltools::HTML("% Area Not<br/>Influenced<br/>by Roads"), 
+            title = htmltools::HTML("% Roadless<br/>Area"), 
             labFormat = labelFormat(suffix = "%", between = ""))
 ```

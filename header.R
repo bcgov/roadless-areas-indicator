@@ -4,6 +4,9 @@ library(readr)
 library(raster)
 library(bcmaps)
 library(fasterize)
+require(SpaDES)
+library(parallel)
+library(doMC)
 
 OutDir <- 'out'
 dataOutDir <- file.path(OutDir,'data')

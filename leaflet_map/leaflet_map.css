@@ -1,6 +1,7 @@
 #reset-button {
   height: 26px; /* easyButton's height default */
-  width: 90.7px;
+  width: 85px;
+  padding: auto;
   /* match background of legend */
   background: white; /* fallback if rgba doesn't work */
   background: rgba(255,255,255,0.8);
@@ -9,7 +10,7 @@
   color: #555;
 }
 
-.leaflet-bar {
+.easy-button-container {
   box-shadow: none;
   /* postion reset box right of legend */
   position: relative;

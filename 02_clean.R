@@ -10,17 +10,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and limitations under the License.
 
-require(SpaDES)
-library(parallel)
-library(doMC)
+source("header.R")
 
 #Common parameters
 nTiles<-100
 Tilebuf<-100
 
 #set RoadDensP as a binary road/no-road
-#RoadDensP100<-raster(file.path(dataOutDir,"RoadDensP100.tif"))
-Rd<-RoadDensP100>0
+RoadDensP100<-raster(file.path(dataOutDir,"RoadDensP100.tif"))
+Rd <- RoadDensP100 > 0
 
 ptm <- proc.time()
 #To remove edge effects a 100 (5000/5km) cell buffer is used
@@ -30,10 +28,8 @@ RdTiles=splitRaster(Rd, nx=sqrt(nTiles), ny=sqrt(nTiles), buffer=c(Tilebuf,Tileb
 dT<-mclapply(RdTiles, gridDistance, origin=1, mc.cores = 3)
 dT_merge<-mergeRaster(dT)
 
-#Remove Lakes from road distance surface, need to use raster SetValues to work properly
-roadsS<-setValues(dT_merge,values(dT_merge))
-LakesR<-setValues(LakesR,values(LakesR))
-roadsS[LakesR==1]<- NA
+# need to use raster SetValues to work properly - add 50m since 100m road already has a 50m buffer
+roadsS<-setValues(dT_merge,values(dT_merge)) + 50
 
 proc.time() - ptm 
 
