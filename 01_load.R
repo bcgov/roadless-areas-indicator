@@ -26,11 +26,7 @@ BCr_file <- file.path(dataOutDir,"BCr.tif")
 if (!file.exists(BCr_file)) {
   BCr <- fasterize(bcmaps::bc_bound_hres(class='sf'),ProvRast)
   writeRaster(BCr, filename=BCr_file, format="GTiff", overwrite=TRUE)
-  # BCr <- rasterize(bcmaps::bc_bound_hres(class = "sp"), ProvRast, mask=TRUE)
-  # writeRaster(BCr, filename=file.path(dataOutDir,"BCr.tif"), 
-  #             format="GTiff", overwrite=TRUE)
 } else {
-  
   BCr <- raster(BCr_file)
 }
 
