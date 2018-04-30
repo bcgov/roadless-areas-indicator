@@ -164,7 +164,7 @@ road_surfaces <- read_csv("data/TRANSPORT_LINE_SURFACE_CODE.csv")
 
 # Sum of SOE road segment lengths
 soe_total_length_roads <- units::set_units(sum(soe_roads$rd_len), km) %>% 
-  round(digits = 0) %>% 
+  signif(digits = 3) %>% 
   scales::comma()
 
 # Summarize road lengths by type, collapsing types into broad categories (paved, gravel, unknown & seasonal)
@@ -175,58 +175,57 @@ soe_roads_summary <-  soe_roads %>%
   st_set_geometry(NULL) %>%
   group_by(TRANSPORT_LINE_SURFACE_CODE) %>%
   left_join(road_surfaces, by = "TRANSPORT_LINE_SURFACE_CODE") %>%
-  mutate(DESCRIPTION = recode(DESCRIPTION, loose = "gravel",
-                              rough = "gravel",
-                              seasonal = "Unknown &\nSeasonal",
-                              unknown = "Unknown &\nSeasonal"),
+  mutate(DESCRIPTION = recode(DESCRIPTION, loose = "Unpaved",
+                              rough = "Unpaved",
+                              seasonal = "Unpaved",
+                              unknown = "Unpaved"),
          DESCRIPTION = R.utils::capitalize(DESCRIPTION)) %>% 
   group_by(DESCRIPTION) %>% 
-  summarise(total_length = as.numeric(units::set_units(sum(rd_len), km))) %>% 
-  mutate(percent_total = (total_length / sum(total_length))*100)
+  summarise(total_length = signif(as.numeric(units::set_units(sum(rd_len), km)), digits=3)) %>% 
+  mutate(percent_total = round((total_length / sum(total_length))*100, digits=1))
 soe_roads_summary
 
 write_csv(soe_roads_summary, "out/soe_roads_by_type_summary.csv")
 
 # Plotting ------------------------------------------------------------
 
+
 # Bar chart of roads by surface type
 # Colour palette
-colrs <- c("Gravel" = "#993404",
-           "Paved" = "#000000",
-           "Unknown &\nSeasonal" = "#fec44f")
+colrs <- c("Unpaved" = "#993404",
+           "Paved" = "#000000")
 
 soe_roads_sum_chart <- soe_roads_summary %>% 
-  ggplot(aes(fct_reorder(DESCRIPTION, total_length), total_length/1000)) +
+  ggplot(aes(fct_reorder(DESCRIPTION, rev(total_length)), total_length)) +
   geom_col(aes(fill = DESCRIPTION), alpha = 0.8) +
+  geom_text(aes(y = total_length, label = comma(total_length), hjust=-.1), size = 4.5) +
   scale_fill_manual(values = colrs, labels = unique(soe_roads_summary$DESCRIPTION),
                     guide = FALSE) +
-    theme_soe() +
-    coord_flip() +
-    # labs(x = "", y = "Total Length (km * 1000)", title = "Total Length of Roads in B.C. by Road Surface Type",
-    #      subtitle = paste0("B.C. has ", total_length_roads, " of roads")) +
-  labs(x = "", y = "Total Length (km * 1000)") +
-    scale_y_continuous(expand = c(0, 0)) +
-    theme(panel.grid.major.y = element_blank(),
-          axis.text = element_text(size = 14),
-          axis.title = element_text(size = 16),
-          plot.subtitle = element_text(size = 12),
-          plot.margin = unit(c(10, 5, 15, 5), "mm"))
+  theme_soe() +
+  coord_flip() +
+  labs(x = "", y = "Total Length (km)") +
+  scale_y_continuous(limits = c(0,840000),
+                     breaks=seq(0, 800000, 200000),
+                     expand = c(0, 0), label = comma) +
+  theme(panel.grid.major.y = element_blank(),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
+        plot.subtitle = element_text(size = 12),
+        plot.margin = unit(c(10, 5, 15, 5), "mm"))
 plot(soe_roads_sum_chart)
+
 
 # Saving bar plot
 
 # PNG
-# png_retina(filename = "./out/soe_roads_by_surface.png", width = 500, height = 500, units = "px", type = "cairo-png")
-# plot(soe_roads_sum_chart)
-# dev.off()
+png_retina(filename = "./out/soe_roads_by_surface.png", width = 500, height = 500, units = "px", type = "cairo-png")
+plot(soe_roads_sum_chart)
+dev.off()
 
 # SVG for the web
 svg_px(file = "./out/soe_roads_by_surface.svg", width = 500, height = 500)
 plot(soe_roads_sum_chart)
 dev.off()
-
-# Save bar chart object to RDS for print version
-saveRDS(soe_roads_sum_chart, file = "tmp/soe_roads_sum_chart.rds")
 
 # Plot of soe_roads map
 
@@ -234,8 +233,8 @@ saveRDS(soe_roads_sum_chart, file = "tmp/soe_roads_sum_chart.rds")
 colrs2 <- c("L" = "#993404",
             "R" = "#993404",
            "P" = "#000000",
-           "S" = "#fec44f",
-           "U" = "#fec44f")
+           "S" = "#993404",
+           "U" = "#993404")
 
 # Using the ggplot2 dev version for geom_sf
 soe_roads_map <- ggplot() +
