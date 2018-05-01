@@ -18,6 +18,7 @@ library(readr) # load data
 library(ggplot2) # plotting, dev version from GitHub for geom_sf
 library(forcats) # reorder factors
 library(bcmaps) # bc_bound()
+library(scales) # comma()
 library(envreportutils) # theme_soe(), png_retina()
 library(R.utils) # capitalize
 library(foreach) # parallel processing tiles
@@ -111,7 +112,7 @@ rm(edge_roads, edge_roads_clipped, edge_roads_clipped_list, interior_roads, road
 saveRDS(roads_clipped, file = "tmp/roads_clipped.rds")
 write_sf(roads_clipped, "out/data/roads_clipped.gpkg")
 
-# Tabular Summaries --------------------------------------------------------
+# All Road Tabular Summaries --------------------------------------------------------
 
 # Load data files from local folders
 roads_clipped <- readRDS("tmp/roads_clipped.rds")
@@ -143,6 +144,8 @@ length_by_surface <- roads_clipped %>%
 write_csv(length_by_type, "out/roads_by_type_summary.csv")
 write_csv(length_by_surface, "out/roads_by_surface_summary.csv")
 
+# SoE Road Data --------------------------------------------------------
+
 # Filter out some transport line types & surfaces
 exclude_surface <- c("O", "B", "D") ## overgrown, boat and decommisioned
 exclude_type <- c("T", "TD", "FR", "F", "FP", "RP", "RWA", "RPM") ## ferry routes, non-motorized trails, proposed, pedestrian mall
@@ -155,7 +158,7 @@ soe_roads <- roads_clipped %>%
 saveRDS(soe_roads, file = "tmp/soe_roads.rds")
 write_sf(soe_roads, "out/data/soe_roads.gpkg")
 
-# Tabular summary ------------------------------------------------------------
+# SoE Road Tabular summary ------------------------------------------------------------
 
 # Load data files from local folders 
 soe_roads <- readRDS("tmp/soe_roads.rds")
@@ -239,10 +242,10 @@ colrs2 <- c("L" = "#993404",
 # Using the ggplot2 dev version for geom_sf
 soe_roads_map <- ggplot() +
   geom_sf(data = bc_bound(), fill = NA, size = 0.2) +
-    geom_sf(data = soe_roads, aes(colour = TRANSPORT_LINE_SURFACE_CODE), size = 0.1) +
+  geom_sf(data = soe_roads, aes(colour = TRANSPORT_LINE_SURFACE_CODE), size = 0.1) +
   coord_sf(datum = NA) +
   scale_colour_manual(values = colrs2, guide = FALSE) +
-    theme_minimal()
+  theme_minimal()
 
 # NOTE: plotting soe_roads is SLOWWWWW
 # plot(soe_roads_map)
