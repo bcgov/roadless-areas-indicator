@@ -10,6 +10,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and limitations under the License.
 
+
+## This script produces a distribution of roadless area patchsizes for B.C. 
+## Both 01_load.R and 02_clean.R need to be run for this script to work.
+
 source("header.R")
 
 #define the patch class breaks - only evaluate areas >500m from roads
