@@ -201,7 +201,7 @@ colrs <- c("Unpaved" = "#993404",
 soe_roads_sum_chart <- soe_roads_summary %>% 
   ggplot(aes(fct_reorder(DESCRIPTION, rev(total_length)), total_length)) +
   geom_col(aes(fill = DESCRIPTION), alpha = 0.8) +
-  geom_text(aes(y = total_length, label = comma(total_length), hjust=-.1), size = 4.5) +
+  geom_text(aes(y = total_length, label = comma(total_length), hjust=-.1), size = 4) +
   scale_fill_manual(values = colrs, labels = unique(soe_roads_summary$DESCRIPTION),
                     guide = FALSE) +
   theme_soe() +
