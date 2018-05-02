@@ -160,7 +160,7 @@ strata_barchart <- function(data, labels, colours, n_classes = 3) {
     scale_fill_manual(values=colours) +
     scale_y_continuous(expand = c(0,0)) +
     coord_flip() + 
-    geom_text(label = paste(format(round(data$area_ha), big.mark = ","),"ha"),  
+    geom_text(label = paste(format(signif(data$area_ha, 3), big.mark = ","),"ha"),  
               hjust = ifelse(data$area_ha < max(data$area_ha) * 0.8, -0.1, 1.1), 
               size = 4) +
     theme_soe() + 
@@ -199,14 +199,15 @@ plot_list <- imap(rbyp_par, ~ {
 
 # walk loops over a list and executes functions but doesn't return anything to the 
 # environment. Good for plotting
-walk(plot_list, ~ {
-  plot(.x$map)
-  plot(.x$barchart)
-})
+# walk(plot_list, ~ {
+#   plot(.x$map)
+#   plot(.x$barchart)
+# })
 
 # Save the list of plots and the ecoregion summary 
 saveRDS(plot_list, file = "tmp/plotlist.rds")
-write_csv(ecoreg_summary, "out/data/ecoreg_summary.csv")
+ecoreg_summary %>% mutate_if(is.numeric, signif, 3) %>% 
+  write_csv("out/data/ecoreg_summary.csv")
 
 #save pngs of plots:
 for (n in names(plot_list)) {
@@ -232,8 +233,8 @@ for (n in names(plot_list)) {
 bc_area_summary <- ecoreg_summary %>% 
   filter(name == "Province") %>% 
   group_by(name, roaded_class) %>% 
-  mutate(total_area=sum(area_ha),
-         total_perc=sum(percent_in_distance_class)) %>% 
+  mutate(total_area=signif(sum(area_ha, 3)),
+         total_perc=signif(sum(percent_in_distance_class), 3)) %>% 
   filter(distance_class != ">5000") %>% 
   mutate(distance_class = recode(distance_class, "500-5000" = ">500")) %>% 
   ungroup() %>% 
@@ -244,8 +245,8 @@ bc_area_summary
 ecoregion_area_summary <- ecoreg_summary %>% 
   filter(name != "Province") %>% 
   group_by(name, roaded_class) %>% 
-  mutate(total_area=sum(area_ha),
-         total_perc=sum(percent_in_distance_class)) %>% 
+  mutate(total_area=signif(sum(area_ha), 3),
+         total_perc=signif(sum(percent_in_distance_class), 3)) %>% 
   filter(distance_class != ">5000") %>% 
   mutate(distance_class = recode(distance_class, "500-5000" = ">500")) %>% 
   ungroup() %>% 
