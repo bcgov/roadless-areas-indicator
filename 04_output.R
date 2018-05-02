@@ -70,17 +70,13 @@ ecoreg_summary <- map_df(rbyp_par_summary, ~ {
                                          labels = DistLbls),
                                          area_ha = areaIN)
   #Group by Distance Class 
-  xDFGroup<-xDF %>%
+  xDF %>%
     dplyr::select(distance_class, area_ha) %>%
     group_by(distance_class)  %>%
     summarise(area_ha=sum(area_ha)) %>% 
     mutate(percent_in_distance_class = area_ha/sum(area_ha)*100, 
            roaded_class = factor(ifelse(distance_class == "0-500", "Roaded", "Not Roaded")))
     }, .id = "name")
-
-#clean up the workspace
-gc()
-
 
 #### FUNCTIONS
 #A set of functions that will be called for displaying table, map and graphs
