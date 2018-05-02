@@ -125,18 +125,18 @@ RdClsMap<-function(dat, Lbl, MCol, title="", plot_gmap = FALSE, legend = FALSE,
 }
 
 #Graphing function - from the summarized data
-plotCummulativeFn = function(data, Yvar, ScaleLabels, title){
-  ggplot(data, aes(x = distance_class, y = Yvar, fill=distance_class)) +
-    scale_fill_manual(values=col_vec) +
-    geom_bar(stat="identity") +
-    geom_text(label=paste(round(Yvar,2),'%',sep=''),  vjust = -0.25, size=3, alpha=0.8) +
-    scale_x_discrete(label=ScaleLabels) +
-    theme(legend.position="none") +
-    theme(axis.text.x = element_text(face="bold", size=6),
-          axis.text.y = element_text(face="bold", size=10)) +
-  ylab("% Area") +
-  xlab(title) 
-}
+# plotCummulativeFn = function(data, Yvar, ScaleLabels, title){
+#   ggplot(data, aes(x = distance_class, y = Yvar, fill=distance_class)) +
+#     scale_fill_manual(values=col_vec) +
+#     geom_bar(stat="identity") +
+#     geom_text(label=paste(round(Yvar,2),'%',sep=''),  vjust = -0.25, size=3, alpha=0.8) +
+#     scale_x_discrete(label=ScaleLabels) +
+#     theme(legend.position="none") +
+#     theme(axis.text.x = element_text(face="bold", size=6),
+#           axis.text.y = element_text(face="bold", size=10)) +
+#   ylab("% Area") +
+#   xlab(title) 
+# }
 
 # Similar to plotCumulativeFn, but allows to specify if using two or three classes 
 # i.e., roaded/not roaded vs <500, 500-5000, >5000
