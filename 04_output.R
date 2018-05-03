@@ -17,18 +17,18 @@ library(purrr)
 library(envreportutils)
 library(rasterVis)
 
-#Read in intermediate data sets and set variables if required
+## Read in intermediate data sets and set variables if required
 # EcoRegRastS <- raster(file.path(dataOutDir,"EcoRegRast.tif"), format="GTiff")
 # ProvRastS <- raster(file.path(dataOutDir,"ProvRast.tif"), format="GTiff")
 # areaIN<-res(ProvRastS)[1]*res(ProvRastS)[2]/10000 #e.g. for 200m grid 4 ha
 
-#define some categorical variables and plotting labels based on distance breaks
+# Define some categorical variables and plotting labels based on distance breaks
 DistanceCls<-c(0,1,2,3)
 DistLbls<-c('0-500','500-5000','>5000')
-CumLbls<-gsub(".*-","<",DistLbls)
+# CumLbls<-gsub(".*-","<",DistLbls)
 
-#Set up a standard set of colours for graphs and maps
-nclr<-length(DistLbls)
+# Set up a standard set of colours for graphs and maps
+# nclr<-length(DistLbls)
 # col_vec<-c(brewer.pal(nclr,"Greens"))
 col_vec<-c('gray61','lightgreen','forestgreen')
 
@@ -43,7 +43,8 @@ SrataName <- "ECOREGION_NAME"
 ## raster_by_poly with parallelization from Andy Teucher:
 # Generate a list of rasters, one for each strata, put Province at front of list
 rbyp_par <- raster_by_poly(EcoRegRastS, Strata, SrataName, parallel = TRUE)
-## Add the province to the list and name it
+
+# Add the province to the list and name it
 rbyp_par<-c(ProvRastS,rbyp_par)
 names(rbyp_par)[1] <- 'Province'
 
@@ -54,7 +55,7 @@ rbyp_par_summary <- summarize_raster_list(rbyp_par)
 rbyp_par<-rbyp_par[lapply(rbyp_par_summary,length)>0]
 rbyp_par_summary<-rbyp_par_summary[lapply(rbyp_par_summary,length)>0] 
 
-#write out summaries for output routine
+# Write out summaries for output routine
 saveRDS(rbyp_par, file = "tmp/rbyp_par")
 saveRDS(rbyp_par_summary, file = "tmp/rbyp_par_summary")
 rbyp_par<-readRDS(file = "tmp/rbyp_par")
@@ -69,6 +70,7 @@ ecoreg_summary <- map_df(rbyp_par_summary, ~ {
                     distance_class = cut(.x, breaks = DistanceCls, 
                                          labels = DistLbls),
                                          area_ha = areaIN)
+
   #Group by Distance Class 
   xDF %>%
     dplyr::select(distance_class, area_ha) %>%
@@ -79,7 +81,7 @@ ecoreg_summary <- map_df(rbyp_par_summary, ~ {
     }, .id = "name")
 
 #### FUNCTIONS
-#A set of functions that will be called for displaying table, map and graphs
+# A set of functions that will be called for displaying map and graphs
 
 ggmap_strata <- function(strata) {
   e <- extent(strata)
@@ -87,7 +89,7 @@ ggmap_strata <- function(strata) {
   get_map(loc, maptype = "satellite")
 }
 
-#Mapping function - removed tile and legend
+# Mapping function - removed title and legend
 RdClsMap<-function(dat, Lbl, MCol, title="", plot_gmap = FALSE, legend = FALSE, 
                    n_classes = 3, max_px = 1000000) {
   if (n_classes == 2) {
@@ -124,7 +126,7 @@ RdClsMap<-function(dat, Lbl, MCol, title="", plot_gmap = FALSE, legend = FALSE,
     )
 }
 
-#Graphing function - from the summarized data
+# Graphing function - from the summarized data
 # plotCummulativeFn = function(data, Yvar, ScaleLabels, title){
 #   ggplot(data, aes(x = distance_class, y = Yvar, fill=distance_class)) +
 #     scale_fill_manual(values=col_vec) +
@@ -173,10 +175,10 @@ strata_barchart <- function(data, labels, colours, n_classes = 3) {
 
 ###### END of FUNCTIONS
 
-# Read in patch table and print table and a simple plot  
-PatchGroup<-read_csv(file.path(dataOutDir,"PatchGroup.csv"))
-print(PatchGroup)
-plot(PatchGroup$Npatch, type='l')
+## Read in patch table and print table and a simple plot  
+# PatchGroup<-read_csv(file.path(dataOutDir,"PatchGroup.csv"))
+# print(PatchGroup)
+# plot(PatchGroup$Npatch, type='l')
 
 #Loop through each strata and generate a map and a bar chart
 plot_list <- imap(rbyp_par, ~ {
@@ -233,8 +235,8 @@ for (n in names(plot_list)) {
 bc_area_summary <- ecoreg_summary %>% 
   filter(name == "Province") %>% 
   group_by(name, roaded_class) %>% 
-  mutate(total_area=signif(sum(area_ha, 3)),
-         total_perc=signif(sum(percent_in_distance_class), 3)) %>% 
+  mutate(total_area=signif(sum(area_ha), digits=3),
+         total_perc=round(sum(percent_in_distance_class), digits=0)) %>% 
   filter(distance_class != ">5000") %>% 
   mutate(distance_class = recode(distance_class, "500-5000" = ">500")) %>% 
   ungroup() %>% 
@@ -245,8 +247,8 @@ bc_area_summary
 ecoregion_area_summary <- ecoreg_summary %>% 
   filter(name != "Province") %>% 
   group_by(name, roaded_class) %>% 
-  mutate(total_area=signif(sum(area_ha), 3),
-         total_perc=signif(sum(percent_in_distance_class), 3)) %>% 
+  mutate(total_area=signif(sum(area_ha), digits=3),
+         total_perc=round(sum(percent_in_distance_class), digits=0)) %>% 
   filter(distance_class != ">5000") %>% 
   mutate(distance_class = recode(distance_class, "500-5000" = ">500")) %>% 
   ungroup() %>% 
