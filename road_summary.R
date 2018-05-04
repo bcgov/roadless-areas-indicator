@@ -220,6 +220,8 @@ plot(soe_roads_sum_chart)
 
 # Saving bar plot
 
+saveRDS(soe_roads_sum_chart, file = "tmp/soe_roads_sum_chart.rds")
+
 # PNG
 png_retina(filename = "./out/soe_roads_by_surface.png", width = 500, height = 500, units = "px", type = "cairo-png")
 plot(soe_roads_sum_chart)
