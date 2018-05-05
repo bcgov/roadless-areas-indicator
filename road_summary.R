@@ -170,9 +170,7 @@ soe_total_length_roads <- units::set_units(sum(soe_roads$rd_len), km) %>%
   signif(digits = 3) %>% 
   scales::comma()
 
-# Summarize road lengths by type, collapsing types into broad categories (paved, gravel, unknown & seasonal)
-# These categories were adapted the Forest Practices Board report Special Report #49
-# https://www.bcfpb.ca/wp-content/uploads/2017/05/SR49-Access-Management.pdf
+# Summarize road lengths by type, collapsing types into broad categories (paved and unpaved, which includes loose, rough, unknown & seasonal)
 
 soe_roads_summary <-  soe_roads %>% 
   st_set_geometry(NULL) %>%
@@ -201,7 +199,7 @@ colrs <- c("Unpaved" = "#993404",
 soe_roads_sum_chart <- soe_roads_summary %>% 
   ggplot(aes(fct_reorder(DESCRIPTION, rev(total_length)), total_length)) +
   geom_col(aes(fill = DESCRIPTION), alpha = 0.8) +
-  geom_text(aes(y = total_length, label = paste0(comma(total_length), " km"), hjust=-.1), size = 4) +
+  geom_text(aes(y = total_length, label = paste0(scales::comma(total_length), " km"), hjust=-.1), size = 4) +
   scale_fill_manual(values = colrs, labels = unique(soe_roads_summary$DESCRIPTION),
                     guide = FALSE) +
   theme_soe() +
