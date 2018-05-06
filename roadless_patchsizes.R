@@ -33,6 +33,7 @@ BCr_4<-aggregate(BCr, fact=2, fun=mean)
 # reclassify the Provincial surface to a binary of 0-500 and >500 and mask with province
 recl<-matrix(reclPCls,ncol=3,byrow=TRUE)
 PatchRast<-mask(reclassify(roadsS_4, rcl=recl, right=FALSE, include.lowest=TRUE), BCr_4)
+areaIN<-res(PatchRast)[1]*res(PatchRast)[2]/10000 #e.g. for 200m grid 4 ha
 
 #Calculate the patch size distribution
 #Code adapted from https://stackoverflow.com/questions/24465627/clump-raster-values-depending-on-class-attribute
@@ -63,7 +64,7 @@ r.class[r == 1]<- 1
 # Raster clump to identify 'patches'
 clp<-clump(r.class)
 # calculate frequency of each patch
-cl.freq <- as.data.frame(freq(clp))
+cl.freq <- as.data.frame(freq(clp, digits=0, useNA='no'))
 patch.freq <- data.frame(idn=cl.freq$value, areaHa=cl.freq$count*areaIN, patch=cut(cl.freq$count*areaIN,breaks=patchCls,labels=patchLbls))
 # generate a table on the frequency of different patch classes
    PatchGroup<-patch.freq %>%
@@ -76,3 +77,4 @@ patch.freq <- data.frame(idn=cl.freq$value, areaHa=cl.freq$count*areaIN, patch=c
 proc.time() - ptm 
 
 gc()
+
