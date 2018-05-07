@@ -38,6 +38,7 @@ library(ggplot2)
 library(purrr)
 library(readr)
 library(here)
+library(envreportutils)
 
 ecoreg_summary <- read_csv(here("out/data/ecoreg_summary.csv")) %>% 
   filter(name != "Province", roaded_class == "Not Roaded") %>% 
@@ -81,9 +82,9 @@ if (params$add_popups) {
 
 ```{r labels-popups, include=FALSE}
 labels <- sprintf(
-  "<strong>%s (%1.1f%%)</strong>",
+  "<strong>%s (%s%%)</strong>",
   tools::toTitleCase(tolower(ecoreg$ECOREGION_NAME)), 
-  ecoreg$percent_unroaded
+  report_percent(ecoreg$percent_unroaded)
 ) %>% lapply(htmltools::HTML)
 
 pal <- colorNumeric(palette = "YlGn", domain = ecoreg$percent_unroaded)
@@ -121,5 +122,5 @@ leaflet(ecoreg, width = "900px", height = "550px") %>%
      position = "bottomleft", id = "reset-button")) %>% 
   addLegend(position = "bottomleft", pal = pal, values = ~percent_unroaded, 
             title = htmltools::HTML("% Roadless<br/>Area"), 
-            labFormat = labelFormat(suffix = "%", between = ""))
+            labFormat = labelFormat(suffix = "%", between = "", digits = 0))
 ```

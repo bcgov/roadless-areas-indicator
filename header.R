@@ -20,5 +20,7 @@ dir.create(file.path(figsOutDir), showWarnings = FALSE)
 dir.create(DataDir, showWarnings = FALSE)
 dir.create("tmp", showWarnings = FALSE)
 
+options("scipen"=100, "digits"=4)
+
 
 
