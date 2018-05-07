@@ -175,11 +175,6 @@ strata_barchart <- function(data, labels, colours, n_classes = 3) {
 
 ###### END of FUNCTIONS
 
-## Read in patch table and print table and a simple plot  
-# PatchGroup<-read_csv(file.path(dataOutDir,"PatchGroup.csv"))
-# print(PatchGroup)
-# plot(PatchGroup$Npatch, type='l')
-
 #Loop through each strata and generate a map and a bar chart
 plot_list <- imap(rbyp_par, ~ {
   ## .x is the object itself (the raster), .y is the name

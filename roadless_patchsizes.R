@@ -78,3 +78,7 @@ proc.time() - ptm
 
 gc()
 
+## Read in patch table and print table and a simple plot  
+PatchGroup<-read_csv(file.path(dataOutDir,"PatchGroup.csv"))
+print(PatchGroup)
+plot(PatchGroup$Npatch, type='l')
