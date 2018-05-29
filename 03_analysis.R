@@ -13,8 +13,8 @@
 source("header.R")
 
 #Read in road surface and Provincial mask - if required
-#roadsS<-raster(file.path(dataOutDir,"roadsS.tif"), format="GTiff")
-#BCr <- raster(file.path(dataOutDir,"BCr.tif"), format="GTiff")
+# roadsS<-raster(file.path(dataOutDir,"roadsS.tif"), format="GTiff")
+# BCr <- raster(file.path(dataOutDir,"BCr.tif"), format="GTiff")
 
 #define the distance class breaks 
 reclCls<-c(0,500,1, 500,5000,2 ,5000,1000000,3)
@@ -35,7 +35,7 @@ areaIN<-res(roadsS)[1]*res(roadsS)[2]/10000 #e.g. for 200m grid 4 ha
 # Reclass the Provincial surface to the desired distance class - 
 # do not mask since the strata clip in 04_output.R will do
 recl<-matrix(reclCls,ncol=3,byrow=TRUE)
-EcoRegRastS<-reclassify(roadsS, rcl=recl, right=FALSE, include.lowest=TRUE)
+EcoRegRastS<-reclassify(roadsS, rcl=recl, right=TRUE, include.lowest=TRUE)
 # mask the surface for provincial reporting in 04_output.R
 ProvRastS<-mask(EcoRegRastS, BCr)
 
