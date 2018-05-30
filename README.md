@@ -41,7 +41,7 @@ install_github("thomasp85/patchwork")
 
 ## Getting Help or Reporting an Issue
 
-To report bugs/issues/feature requests, please file an [issue](https://github.com/bcgov-c/roadless-areas-indicator/issues/).
+To report bugs/issues/feature requests, please file an [issue](https://github.com/bcgov/roadless-areas-indicator/issues/).
 
 ## How to Contribute
 
