@@ -114,7 +114,7 @@ write_sf(roads_clipped, "out/data/roads_clipped.gpkg")
 
 # All Road Tabular Summaries --------------------------------------------------------
 
-# Load data files from local folders
+# Load data files from local folders - if required
 roads_clipped <- readRDS("tmp/roads_clipped.rds")
 road_types <- read_csv("data/TRANSPORT_LINE_TYPE_CODE.csv")
 road_surfaces <- read_csv("data/TRANSPORT_LINE_SURFACE_CODE.csv")
