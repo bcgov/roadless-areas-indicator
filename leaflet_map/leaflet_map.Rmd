@@ -40,11 +40,12 @@ library(readr)
 library(here)
 library(envreportutils)
 
-ecoreg_summary <- read_csv(here("out/data/ecoreg_summary.csv")) %>% 
+ecoreg_summary <- read_csv(here("out/data/bc_roadless_areas_ecoreg_summary.csv")) %>% 
   filter(name != "Province", roaded_class == "Not Roaded") %>% 
-  group_by(name) %>% 
-  summarize(percent_unroaded = sum(percent_in_distance_class), 
-            area_ha = sum(area_ha))
+  mutate(percent_unroaded = percent_in_distance_class)
+  # group_by(name) %>% 
+  # summarize(percent_unroaded = sum(percent_in_distance_class), 
+  #           area_ha = sum(area_ha))
 
 ecoreg <- ecoregions() %>% 
   filter(!ECOREGION_CODE %in% c("HCS", "IPS", "OPS", "SBC", "TPC")) %>% 
@@ -61,8 +62,8 @@ if (params$add_popups) {
   
   popupGraph_list <- imap(plot_list, ~ {
     .x$barchart + 
-      labs(title = paste0(.y, "\n", "\n", sep = "")) +
-      theme(plot.title = element_text(size = 14, face="bold")) +
+   #   labs(title = paste0(.y, "\n", "\n", sep = "")) +
+    #  theme(plot.title = element_text(size = 14, face="bold")) +
       .x$map +
       plot_layout(widths = c(1, 1.5)) +
       plot_annotation(title = tools::toTitleCase(tolower(.y)),
