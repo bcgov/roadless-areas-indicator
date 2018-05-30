@@ -163,9 +163,9 @@ RdClsMap<-function(dat, Lbl, MCol, title="", plot_gmap = FALSE, legend = FALSE,
 # i.e., roaded/not roaded vs <500, 500-5000, >5000
 strata_barchart <- function(data, labels, colours, n_classes = 3) {
   if (n_classes == 2) {
-    # data <- data %>% 
-    #   mutate(distance_class = factor(ifelse(distance_class == "0-500", 
-    #                                          "Roaded", "Not Roaded"))) %>% 
+    data <- data %>%
+      mutate(distance_class = factor(ifelse(distance_class == "0 to 500",
+                                             "Roaded", "Not Roaded")))
     #   group_by(distance_class) %>% 
     #   summarize(percent_in_distance_class = sum(percent_in_distance_class), 
     #             area_ha = sum(area_ha))
