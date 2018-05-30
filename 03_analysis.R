@@ -13,8 +13,8 @@
 source("header.R")
 
 #Read in road surface and Provincial mask - if required
-# roadsS<-raster(file.path(dataOutDir,"roadsS.tif"), format="GTiff")
-# BCr <- raster(file.path(dataOutDir,"BCr.tif"), format="GTiff")
+roadsS<-raster(file.path(dataOutDir,"roadsS.tif"), format="GTiff")
+BCr <- raster(file.path(dataOutDir,"BCr.tif"), format="GTiff")
 
 #define the distance class breaks 
 reclCls<-c(0,500,1, 500,5000,2 ,5000,1000000,3)
