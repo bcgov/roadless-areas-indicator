@@ -152,10 +152,7 @@ strata_barchart <- function(data, labels, colours, n_classes = 3) {
     data <- data %>%
       mutate(distance_class = factor(ifelse(distance_class == "0 to 500",
                                              "Roaded", "Not Roaded")))
-    #   group_by(distance_class) %>% 
-    #   summarize(percent_in_distance_class = sum(percent_in_distance_class), 
-    #             area_ha = sum(area_ha))
-    
+
     colours <- colours[c(3,1)]
     x_lab <- ""
   } else {
