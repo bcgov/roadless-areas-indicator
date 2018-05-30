@@ -18,13 +18,13 @@ library(envreportutils)
 library(rasterVis)
 
 ## Read in intermediate data sets and set variables if required
-# EcoRegRastS <- raster(file.path(dataOutDir,"EcoRegRast.tif"), format="GTiff")
-# ProvRastS <- raster(file.path(dataOutDir,"ProvRast.tif"), format="GTiff")
-# areaIN<-res(ProvRastS)[1]*res(ProvRastS)[2]/10000 #e.g. for 200m grid 4 ha
+EcoRegRastS <- raster(file.path(dataOutDir,"EcoRegRast.tif"), format="GTiff")
+ProvRastS <- raster(file.path(dataOutDir,"ProvRast.tif"), format="GTiff")
+areaIN<-res(ProvRastS)[1]*res(ProvRastS)[2]/10000 #e.g. for 200m grid 4 ha
 
 # Define some categorical variables and plotting labels based on distance breaks
 DistanceCls<-c(0,1,2,3)
-DistLbls<-c('0-500','500-5000','>5000')
+DistLbls<-c('0 to 500','>500 to 5000','>5000')
 # CumLbls<-gsub(".*-","<",DistLbls)
 
 # Set up a standard set of colours for graphs and maps
@@ -65,7 +65,7 @@ rbyp_par_summary<-readRDS(file = "tmp/rbyp_par_summary")
 ## purrr::map_df is like purrr::map in that it loops over a list/vector,
 ## but assumes that each iteration is either a list of the same length,
 ## or a data.frame, and at the end combines it all into one data.frame
-ecoreg_summary <- map_df(rbyp_par_summary, ~ {
+raw_ecoreg_summary <- map_df(rbyp_par_summary, ~ {
   xDF <- data.frame(Distance = .x,
                     distance_class = cut(.x, breaks = DistanceCls, 
                                          labels = DistLbls),
@@ -75,10 +75,29 @@ ecoreg_summary <- map_df(rbyp_par_summary, ~ {
   xDF %>%
     dplyr::select(distance_class, area_ha) %>%
     group_by(distance_class)  %>%
-    summarise(area_ha=sum(area_ha)) %>% 
-    mutate(percent_in_distance_class = area_ha/sum(area_ha)*100, 
-           roaded_class = factor(ifelse(distance_class == "0-500", "Roaded", "Not Roaded")))
+    summarise(area_ha=(sum(area_ha))) %>% 
+    mutate(roaded_class = factor(ifelse(distance_class == "0 to 500", "Roaded", "Not Roaded")))
     }, .id = "name")
+
+## Generate a summary data frame with two distance classes, appropriate sig figs
+## and generate percent summaries
+
+ecoreg_summary <- raw_ecoreg_summary %>% 
+  group_by(name, roaded_class) %>% 
+  mutate(area_ha=signif(sum(area_ha), digits=3)) %>% 
+  filter(distance_class != ">5000") %>% 
+  mutate(distance_class = recode(distance_class, ">500 to 5000" = ">500")) %>% 
+  group_by(name) %>% 
+  mutate(percent_in_distance_class=report_percent(area_ha/sum(area_ha)*100, as_char=FALSE)) %>% 
+  ungroup() %>% 
+  dplyr::select(name, distance_class, roaded_class, area_ha, percent_in_distance_class)
+
+
+## Create indicator summary data frame for B.C. Data Catalogue
+ecoreg_summary %>% 
+  mutate(percent_in_distance_class=as.character(percent_in_distance_class),
+         area_ha=as.character(area_ha)) %>% 
+  write_csv("out/data/bc_roadless_areas_ecoreg_summary.csv")
 
 #### FUNCTIONS
 # A set of functions that will be called for displaying map and graphs
@@ -144,12 +163,12 @@ RdClsMap<-function(dat, Lbl, MCol, title="", plot_gmap = FALSE, legend = FALSE,
 # i.e., roaded/not roaded vs <500, 500-5000, >5000
 strata_barchart <- function(data, labels, colours, n_classes = 3) {
   if (n_classes == 2) {
-    data <- data %>% 
-      mutate(distance_class = factor(ifelse(distance_class == "0-500", 
-                                             "Roaded", "Not Roaded"))) %>% 
-      group_by(distance_class) %>% 
-      summarize(percent_in_distance_class = sum(percent_in_distance_class), 
-                area_ha = sum(area_ha))
+    # data <- data %>% 
+    #   mutate(distance_class = factor(ifelse(distance_class == "0-500", 
+    #                                          "Roaded", "Not Roaded"))) %>% 
+    #   group_by(distance_class) %>% 
+    #   summarize(percent_in_distance_class = sum(percent_in_distance_class), 
+    #             area_ha = sum(area_ha))
     
     colours <- colours[c(3,1)]
     x_lab <- ""
@@ -203,8 +222,7 @@ plot_list <- imap(rbyp_par, ~ {
 
 # Save the list of plots and the ecoregion summary 
 saveRDS(plot_list, file = "tmp/plotlist.rds")
-ecoreg_summary %>% mutate_if(is.numeric, signif, 3) %>% 
-  write_csv("out/data/ecoreg_summary.csv")
+
 
 #save pngs of plots:
 for (n in names(plot_list)) {
@@ -225,31 +243,19 @@ for (n in names(plot_list)) {
   dev.off()
 }
 
-#summary of results
+# Summary of tabular results
 
-bc_area_summary <- ecoreg_summary %>% 
-  filter(name == "Province") %>% 
-  group_by(name, roaded_class) %>% 
-  mutate(total_area=signif(sum(area_ha), digits=3),
-         total_perc=round(sum(percent_in_distance_class), digits=0)) %>% 
-  filter(distance_class != ">5000") %>% 
-  mutate(distance_class = recode(distance_class, "500-5000" = ">500")) %>% 
-  ungroup() %>% 
-  dplyr::select(-area_ha, -percent_in_distance_class) 
-bc_area_summary
+# Provincial output
+bcsummary <- ecoreg_summary %>% 
+  filter(name == "Province") 
+bcsummary
 
 
-ecoregion_area_summary <- ecoreg_summary %>% 
+# Ecoregion output
+ecosummary <- ecoreg_summary %>% 
   filter(name != "Province") %>% 
-  group_by(name, roaded_class) %>% 
-  mutate(total_area=signif(sum(area_ha), digits=3),
-         total_perc=round(sum(percent_in_distance_class), digits=0)) %>% 
-  filter(distance_class != ">5000") %>% 
-  mutate(distance_class = recode(distance_class, "500-5000" = ">500")) %>% 
-  ungroup() %>% 
-  dplyr::select(-area_ha, -percent_in_distance_class) %>% 
   filter(roaded_class == "Not Roaded")
-ecoregion_area_summary
+ecosummary
 
-more50 <- ecoregion_area_summary %>% count(total_perc > 50)
-less25 <- ecoregion_area_summary %>% count(total_perc < 25)
+more50 <- ecosummary %>% count(percent_in_distance_class > 50) 
+less25 <- ecosummary %>% count(percent_in_distance_class < 25)
