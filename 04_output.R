@@ -25,11 +25,8 @@ areaIN<-res(ProvRastS)[1]*res(ProvRastS)[2]/10000 #e.g. for 200m grid 4 ha
 # Define some categorical variables and plotting labels based on distance breaks
 DistanceCls<-c(0,1,2,3)
 DistLbls<-c('0 to 500','>500 to 5000','>5000')
-# CumLbls<-gsub(".*-","<",DistLbls)
 
 # Set up a standard set of colours for graphs and maps
-# nclr<-length(DistLbls)
-# col_vec<-c(brewer.pal(nclr,"Greens"))
 col_vec<-c('gray61','lightgreen','forestgreen')
 
 # Generate a list of rasters, one for each strata
@@ -58,8 +55,10 @@ rbyp_par_summary<-rbyp_par_summary[lapply(rbyp_par_summary,length)>0]
 # Write out summaries for output routine
 saveRDS(rbyp_par, file = "tmp/rbyp_par")
 saveRDS(rbyp_par_summary, file = "tmp/rbyp_par_summary")
-rbyp_par<-readRDS(file = "tmp/rbyp_par")
-rbyp_par_summary<-readRDS(file = "tmp/rbyp_par_summary")
+
+# READ in summaries - if required
+# rbyp_par<-readRDS(file = "tmp/rbyp_par")
+# rbyp_par_summary<-readRDS(file = "tmp/rbyp_par_summary")
 
 ## Make a data frame of ecoregion metrics of distance to roads
 ## purrr::map_df is like purrr::map in that it loops over a list/vector,
@@ -145,21 +144,8 @@ RdClsMap<-function(dat, Lbl, MCol, title="", plot_gmap = FALSE, legend = FALSE,
     )
 }
 
-# Graphing function - from the summarized data
-# plotCummulativeFn = function(data, Yvar, ScaleLabels, title){
-#   ggplot(data, aes(x = distance_class, y = Yvar, fill=distance_class)) +
-#     scale_fill_manual(values=col_vec) +
-#     geom_bar(stat="identity") +
-#     geom_text(label=paste(round(Yvar,2),'%',sep=''),  vjust = -0.25, size=3, alpha=0.8) +
-#     scale_x_discrete(label=ScaleLabels) +
-#     theme(legend.position="none") +
-#     theme(axis.text.x = element_text(face="bold", size=6),
-#           axis.text.y = element_text(face="bold", size=10)) +
-#   ylab("% Area") +
-#   xlab(title) 
-# }
 
-# Similar to plotCumulativeFn, but allows to specify if using two or three classes 
+# Bar chart function, specify if using two or three classes 
 # i.e., roaded/not roaded vs <500, 500-5000, >5000
 strata_barchart <- function(data, labels, colours, n_classes = 3) {
   if (n_classes == 2) {
@@ -198,12 +184,9 @@ strata_barchart <- function(data, labels, colours, n_classes = 3) {
 plot_list <- imap(rbyp_par, ~ {
   ## .x is the object itself (the raster), .y is the name
   print(.y)
-#Call graph function for distance and cummulative distance
-  # plotCumm<-plotCummulativeFn(xDFGroup2, xDFGroup2$distCumCls, CumLbls, 'Cumulative Distance Class')
+#Call graph functions
   xDFGroup2 <- filter(ecoreg_summary, name == .y)
-  # plotDist<-plotCummulativeFn(xDFGroup2, xDFGroup2$percent_in_distance_class, DistLbls, 'Distance Class')
   strata_plot <- strata_barchart(xDFGroup2, colours = col_vec, n_classes = 2)
-
   plotMap<-RdClsMap(.x, DistLbls, col_vec, title=.y, 
                     plot_gmap = FALSE, legend = FALSE, n_classes = 2)
   
@@ -222,7 +205,6 @@ plot_list <- imap(rbyp_par, ~ {
 
 # Save the list of plots and the ecoregion summary 
 saveRDS(plot_list, file = "tmp/plotlist.rds")
-
 
 #save pngs of plots:
 for (n in names(plot_list)) {
@@ -249,7 +231,6 @@ for (n in names(plot_list)) {
 bcsummary <- ecoreg_summary %>% 
   filter(name == "Province") 
 bcsummary
-
 
 # Ecoregion output
 ecosummary <- ecoreg_summary %>% 
