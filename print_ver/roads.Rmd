@@ -4,6 +4,21 @@ title: "Roads & Roadless Areas in British Columbia"
 output: envreportutils.internal::print_ver
 ---
 
+<!--
+Copyright 2018 Province of British Columbia
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and limitations under the License.
+-->
+
+
 ```{r set-options, echo=FALSE, cache=FALSE, warning=FALSE, message=FALSE}
 library(knitr)
 library(png)
@@ -34,13 +49,34 @@ theme_text <- theme(axis.text = element_text(size=10),
 
 ```
 
-Lorem ipsum dolor sit amet, maximus risus, imperdiet mi ac. Vitae tempor ultrices, odio euismod fames tempus at, sodales, eu lacus. Sit ac pellentesque eget ligula sociis mi sociis taciti sed nec. Sodales leo nam himenaeos a et. Porttitor adipiscing risus donec rhoncus est ut eget eu. Feugiat pellentesque donec, vitae neque. Sit faucibus eget nec quis turpis orci. Et, ultrices aptent magnis.
+While roads serve the interests of the public, First Nations, and
+industries, they are also one of the most widespread forms of landscape
+change^[1](#fn1)^. Roads can threaten biological diversity and ecosystem
+health through habitat loss and fragmentation, expanding development,
+spread of [invasive
+species](http://www.env.gov.bc.ca/soe/indicators/plants-and-animals/invasive-species.html)
+and increasing human-wildlife interactions—for example animal mortality
+from collisions with vehicles^[1](#fn1)^. This indicator reports on the
+amount and distribution of roads and roadless areas in British Columbia.
 
-- Nisl, lacinia vel, nisl, rutrum ac, elementum felis. Dui ante eros ex mi, interdum velit accumsan sociosqu, tempus. Erat vulputate potenti nascetur. Malesuada, curabitur, leo himenaeos, molestie euismod sit. In vitae sollicitudin adipiscing commodo.
-- Nisl, lacinia vel, nisl, rutrum ac, elementum felis. Dui ante eros ex mi, interdum velit accumsan sociosqu, tempus. Erat vulputate potenti nascetur. Malesuada, curabitur, leo himenaeos, molestie euismod sit. In vitae sollicitudin adipiscing commodo.
-- Nisl, lacinia vel, nisl, rutrum ac, elementum felis. Dui ante eros ex mi, interdum velit accumsan sociosqu, tempus. Erat vulputate potenti nascetur. Malesuada, curabitur, leo himenaeos, molestie euismod sit. In vitae sollicitudin adipiscing commodo.
+-   **British Columbia has approximately 719,000 kilometres of roads.**
+    Roads include all paved roads and all unpaved roads and trails that allow motorized vehicle use.
+-   **Unpaved roads make up 92 percent of the roads in British
+    Columbia.** B.C. has a long history of natural resource use
+    resulting in this large gravel road network^[2](#fn2)^.
+-   **Two thirds of British Columbia's landbase is roadless.** The
+    amount and distribution of roadless area&mdash;areas further than 500
+    metres from a road&mdash;varies considerably across British Columbia.
 
-Cum vivamus penatibus sed mus fringilla non sociosqu taciti ut. Sed, semper lacus justo ultricies penatibus praesent. Tortor vivamus fermentum libero, libero urna montes orci luctus ligula? Tellus et mauris sed a in lacinia imperdiet. Sed nec penatibus sed at mauris etiam. Interdum morbi arcu vitae lectus cubilia eros, imperdiet felis. 
+Large areas that are not influenced by roads or other landscape
+disturbances provide benefits and opportunities for British Columbia and
+British Columbians. These large, roadless&mdash;or intact&mdash;areas provide
+conservation benefits, for example providing habitat for species such as
+[grizzly
+bear](http://www.env.gov.bc.ca/soe/indicators/plants-and-animals/grizzly-bears.html),
+maintaining ecosystem services, such as water availability and flood
+control, and supporting adaptation to climate change. They also provide
+economic, recreational and wilderness opportunities.
 
 
 \begin{center}
@@ -53,7 +89,7 @@ Cum vivamus penatibus sed mus fringilla non sociosqu taciti ut. Sed, semper lacu
      
     \vspace{1mm}
     
-    \text{The Digital Road Atlas is a single, authoritative source of road data for the Province of B.C.}
+    \text{The Digital Road Atlas is the best available single source of road data for the Province of B.C.}
     
        \vspace{2mm}
     
@@ -62,7 +98,7 @@ Cum vivamus penatibus sed mus fringilla non sociosqu taciti ut. Sed, semper lacu
     
        \vspace{2mm}
     
-    \href{http://www.env.gov.bc.ca/soe/indicators/land/protected-lands-and-waters.html}{Explore the B.C. Digital Road Atlas to learn more about roads in B.C.}
+    \href{https://www2.gov.bc.ca/gov/content?id=21FFEC94B0AD40818D2D2AF06D522714}{Explore the B.C. Digital Road Atlas to learn more about roads in B.C.}
     
   \end{minipage}
 }
@@ -71,10 +107,11 @@ Cum vivamus penatibus sed mus fringilla non sociosqu taciti ut. Sed, semper lacu
 \newpage
 
 
-## Roads & Road Types in B.C.
+## Roads in B.C.
 
-- Nisl, lacinia vel, nisl, rutrum ac, elementum felis. Dui ante eros ex mi, interdum velit accumsan sociosqu, tempus. Erat vulputate potenti nascetur.
-- Malesuada, curabitur, leo himenaeos, molestie euismod sit. In vitae sollicitudin adipiscing commodo.
+-   British Columbia has approximately 719,000 kilometres of roads, when including all
+    road types that allow motorized vehicle use.
+-   Unpaved roads&mdash;which include all seasonal, loose and rough surfaced roads&mdash;contribute the most (92%) to the total length of roads in B.C.
 
 ```{r road-bar-plot, results='asis', fig.height=4, fig.width=6, fig.align='center'}
 
@@ -95,8 +132,8 @@ include_graphics(paste0(proj_path, road_map))
 
 ## Roadless Areas in B.C.
 
-- Nisl, lacinia vel, nisl, rutrum ac, elementum felis. Dui ante eros ex mi, interdum velit accumsan sociosqu, tempus. Erat vulputate potenti nascetur.
-- Malesuada, curabitur, leo himenaeos, molestie euismod sit. In vitae sollicitudin adipiscing commodo.
+-   Sixty-six percent&mdash;or 62,600,000 hectares&mdash;of British Columbia's
+    landbase is roadless, defined as more than 500 metres from a road.
     
 ```{r roadless-area-figures, results='asis', fig.height=4, fig.width=6, fig.align='center'}
 
@@ -115,17 +152,24 @@ iwalk(prov_list,  ~ {
 
 ## Roadless Areas within B.C.'s Ecoregions
 
-- Nisl, lacinia vel, nisl, rutrum ac, elementum felis. Dui ante eros ex mi, interdum velit accumsan sociosqu, tempus. Erat vulputate potenti nascetur.
-- Malesuada, curabitur, leo himenaeos, molestie euismod sit. In vitae sollicitudin adipiscing commodo.
+-   The amount and distribution of roadless areas vary considerably
+    across B.C. Twenty seven of the 43 terrestrial
+    [ecoregions](https://www2.gov.bc.ca/gov/content?id=80F98E32A7FC45B2AC8F838041CB98A9)
+    in B.C. are more than 50 percent roadless, while 6 ecoregions have
+    less that 25 percent roadless area.
+-   As expected, ecoregions with high [population
+    densities](http://www.env.gov.bc.ca/soe/indicators/sustainability/bc-population.html),
+    and hence larger road networks, have the lowest amounts of remaining
+    roadless area. For example, the Lower Mainland, Georgia-Puget Basin
+    and Okanagan Highland ecoregions each have 13 percent roadless
+    area (see the Appendix for individual ecoregion results).
 
 \vspace{30pt}
 
 ```{r map, warning=FALSE, fig.height=8, fig.align="center"}
-ecoreg_summary <- read_csv(paste0(proj_path, "data/ecoreg_summary.csv")) %>% 
+ecoreg_summary <- read_csv(paste0(proj_path, "data/bc_roadless_areas_ecoreg_summary.csv")) %>% 
   filter(name != "Province", roaded_class == "Not Roaded") %>% 
-  group_by(name) %>% 
-  summarize(percent_unroaded = sum(percent_in_distance_class), 
-            area_ha = sum(area_ha))
+  mutate(percent_unroaded = percent_in_distance_class)
 
 ecoreg <- ecoregions() %>% 
   filter(!ECOREGION_CODE %in% c("HCS", "IPS", "OPS", "SBC", "TPC")) %>% 
@@ -150,8 +194,8 @@ plot(ecoreg)
 \newpage
 
 ## Methods
-This indicator is based on the B.C. [Digital Road Atlas](https://catalogue.data.gov.bc.ca/dataset/bb060417-b6e6-4548-b837-f9060d94743e), the authoritative source of road data for British Columbia (accessed on March 1st, 2018). All paved and gravel roads that allow motorized vehicle use were included in the analysis. Some features available in the [Digital Road Atlas](https://catalogue.data.gov.bc.ca/dataset/bb060417-b6e6-4548-b837-f9060d94743e) were excluded, including non-roads (ferry routes, proposed roads, pedestrian only roads, trails and water access routes) and non-active roads (decommissioned and overgrown roads). The indicator presents a coarse-scale snapshot of the amount and distribution of roads in British Columbia, however road condition or intensity of road use was not evaluated. Roadless areas were determined by applying a 500 metre buffer on either side of all roads. A 500 metre buffer is a conservative value for determining influence and has been defined as the minimum zone of influence in recent assessments of intact landscapes in
-Canada^3^.
+
+This indicator is based on the B.C. [Digital Road Atlas](https://catalogue.data.gov.bc.ca/dataset/bb060417-b6e6-4548-b837-f9060d94743e)the best available single source of road data for British Columbia (accessed on May 1st, 2018). All paved roads and unpaved roads and trails that *allow* motorized vehicle use&mdash;as detailed in the [Digital Road Atlas Data Dictionary](https://catalogue.data.gov.bc.ca/dataset/bb060417-b6e6-4548-b837-f9060d94743e)&mdash;were included in the analysis. Some road features available in the [Digital Road Atlas](https://catalogue.data.gov.bc.ca/dataset/bb060417-b6e6-4548-b837-f9060d94743e) were excluded, including non-roads (ferry routes, proposed roads, pedestrian only roads, non-motorized trails and water access routes) and non-active roads (decommissioned and overgrown roads). The indicator presents a coarse-scale snapshot of the amount and distribution of roads in British Columbia&mdash;data completeness, data quality, road condition or intensity of road use were not evaluated. Roadless areas were determined by applying a 500 metre buffer on either side of all roads. A 500 metre buffer is a conservative value for determining influence and has been defined as the minimum zone of influence in a recent assessment of intact landscapes in Canada^[3](#fn3)^. All results are reported to three significant figures. While the indicator results are broadly similar to previous road and roadless area analyses for British Columbia, the results among studies cannot be directly compared do to the use of different road data sources and methodologies^[2,4](#fn4)^.
 
 The [**R**](http://www.r-project.org) code for repeating the analysis and data visualizations presented on this page is available on [GitHub](https://github.com/bcgov/roadless-areas-indicator).
 
@@ -166,11 +210,10 @@ The [**R**](http://www.r-project.org) code for repeating the analysis and data v
 -   ^2^[B.C. Forest Practices Board. 2015. Access Management and
     Resource Roads: 2015 Update.
     FPB/SR/49.](https://www.bcfpb.ca/reports-publications/reports/access-management-and-resource-roads-2015-update)
--  ^3^[Lee, P.G., M. Hanneman, J.D. Gysbers, R. Cheng and W.
+-  ^3^Lee, P.G., M. Hanneman, J.D. Gysbers, R. Cheng and W.
     Smith. 2010. Atlas of Canada’s Intact Forest Landscapes. Edmonton,
     Alberta: Global Forest Watch Canada 10th Anniversary Publication
     \#1. 74 pp.
-    (PDF)](https://globalforestwatch.ca/sites/gfwc/files/publications/20100913A_01CanadaAtlas_IFL_highres.pdf)
 -   ^4^[British Columbia. Ministry of Environment. 2007. Environmental
     Trends in British Columbia: 2007. Ministry of Environment, State of
     Environment
@@ -180,13 +223,14 @@ The [**R**](http://www.r-project.org) code for repeating the analysis and data v
 
 \*By accessing these datasets, you agree to the licence associated with each file, as indicated in parentheses below.
 
--   [Indicator data: Amount of Roadless Area by Ecoregion in B.C.](https://catalogue.data.gov.bc.ca/dataset?download_audience=Public) (Licence: [Open Government Licence - British Columbia](http://www2.gov.bc.ca/gov/content?id=A519A56BC2BF44E4A008B33FCF527F61))
+-   [Indicator Summary Data: Amount of Roaded & Roadless Area by Ecoregion in B.C.](https://catalogue.data.gov.bc.ca/dataset/42f52a87-e0a3-4dfa-8a0a-7c0aba69167d) (Licence: [Open Government Licence - British Columbia](http://www2.gov.bc.ca/gov/content?id=A519A56BC2BF44E4A008B33FCF527F61))
+
 -   [Digital Road Atlas (DRA) - Master Partially-Attributed Roads](https://catalogue.data.gov.bc.ca/dataset/bb060417-b6e6-4548-b837-f9060d94743e) (Licence: [B.C. Crown Copyright](https://www2.gov.bc.ca/gov/content?id=1AAACC9C65754E4D89A118B875E0FBDA))
 -   [Ecoregions - Ecoregion Ecosystem Classification of British
     Columbia](https://catalogue.data.gov.bc.ca/dataset/d00389e0-66da-4895-bd56-39a0dd64aa78) (Licence: [Open Government Licence - British Columbia](http://www2.gov.bc.ca/gov/content?id=A519A56BC2BF44E4A008B33FCF527F61))
 
-Published and Available On-Line at Environmental Reporting BC (Month Year):
-[](http://www.env.gov.bc.ca/soe)
+Published and Available On-Line at Environmental Reporting BC (May 2018):
+[http://www.env.gov.bc.ca/soe/land/roads.html](http://www.env.gov.bc.ca/soe/land/roads.html)
 
 Email correspondence to: envreportbc@gov.bc.ca
 
@@ -201,11 +245,11 @@ Email correspondence to: envreportbc@gov.bc.ca
 ## Filter list of plots for the ecoregion plots for the appendix
 appendix_list <- plot_list[names(plot_list) != "Province"]
 
+## TESTING
 #foo <- appendix_list[1:4] #object for testing iwalk()
+##
 
 iwalk(appendix_list,  ~ {
-#  cat("\\textbf{\nECOREGION: ", .y, "\n}", sep = "")
-#  cat("\n ")
   ebc <- .x$barchart + 
     labs(title = paste0(.y, "\n", "\n", sep = "")) +
     theme(plot.title = element_text(size = 12, face="bold")) +
