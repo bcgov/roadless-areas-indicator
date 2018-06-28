@@ -1,6 +1,9 @@
 #reset-button {
   height: 26px; /* easyButton's height default */
   width: 85px;
+  /* make line-height == height to vertically centre text */
+  line-height: 26px;
+  white-space: nowrap;
   padding: auto;
   /* match background of legend */
   background: white; /* fallback if rgba doesn't work */
@@ -14,6 +17,7 @@
   box-shadow: none;
   /* postion reset box right of legend */
   position: relative;
+  border: none !important;
   left: 100px;
 }
 
