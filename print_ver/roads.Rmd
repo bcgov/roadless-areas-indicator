@@ -214,10 +214,10 @@ The [**R**](http://www.r-project.org) code for repeating the analysis and data v
     Smith. 2010. Atlas of Canada’s Intact Forest Landscapes. Edmonton,
     Alberta: Global Forest Watch Canada 10th Anniversary Publication
     \#1. 74 pp.
--   ^4^[British Columbia. Ministry of Environment. 2007. Environmental
-    Trends in British Columbia: 2007. Ministry of Environment, State of
+-   ^4^[Ministry of Environment. 2007. Environmental
+    Trends in British Columbia: 2007. State of
     Environment
-    Reporting.](https://www2.gov.bc.ca/gov/content?id=07DD1DCE7F784EFEBA5A26C32CB1646D)
+    Reporting, Ministry of Environment, British Columbia, Canada.](https://www2.gov.bc.ca/gov/content?id=07DD1DCE7F784EFEBA5A26C32CB1646D)
 
 ## Data
 
